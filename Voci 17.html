@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vokabel-Master Ultimate Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg-light: #f5f0e1;
+            --bg-dark: #e5ddd5;
+            --card-bg: #ffffff;
+            --text-color: #5d5b59;
+            --border-color: #c5bcb3;
+            --beige-accent: #d2b48c;
+            --pastel-blue: #a2d2ff;
+            --pastel-green: #bafca2;
+            --pastel-orange: #ffccac;
+            --board-color: #5d5b59;
+        }
+
+        [data-theme="dark"] {
+            --bg-light: #1e1e1e;
+            --bg-dark: #2d2d2d;
+            --card-bg: #3a3a3c;
+            --text-color: #f5f5f5;
+            --border-color: #48484a;
+            --beige-accent: #5e5e6e;
+            --pastel-blue: #2c3e50;
+            --pastel-green: #1e3f20;
+            --pastel-orange: #4a2e1b;
+        }
+
+        [data-theme="aesthetic"] {
+            --bg-light: #f0eff5;
+            --bg-dark: #e3e1ec;
+            --card-bg: #ffffff;
+            --text-color: #4a475a;
+            --border-color: #d1cedd;
+            --beige-accent: #b8b5cd;
+            --pastel-blue: #d6e4ff;
+            --pastel-green: #d3f9d8;
+            --pastel-orange: #ffe3e3;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-light); color: var(--text-color); margin: 0; padding: 20px; padding-bottom: 80px; transition: background-color 0.3s, color 0.3s; }
+        .hidden { display: none !important; }
+
+        header { display: flex; justify-content: space-between; align-items: center; }
+        
+        .score-board {
+            background-color: var(--board-color);
+            color: white; padding: 15px; border: 8px solid #8b4513; border-radius: 4px;
+            text-align: center; margin: 20px 0; font-family: 'Courier New', monospace;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: background-color 0.3s;
+        }
+
+        .pet-gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 10px 0; min-height: 50px; padding: 10px; background: rgba(255,255,255,0.15); border-radius: 15px; }
+        .pet-item { font-size: 2.5rem; display: inline-block; animation: idleBounce 3s infinite ease-in-out; cursor: pointer; }
+        @keyframes idleBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        
+        .pet-item.eating { animation: eatJump 0.5s 3 ease-in-out; }
+        @keyframes eatJump { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.2); } }
+
+        .list-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+        .list-group { border: 1px solid var(--border-color); border-radius: 15px; padding: 10px; display: flex; flex-direction: column; gap: 8px; background: rgba(255,255,255,0.1); position: relative; }
+        .list-row-cards { display: flex; gap: 8px; width: 100%; }
+        .list-card { background: var(--card-bg); color: var(--text-color); padding: 15px; border-radius: 10px; border: 1px solid var(--bg-dark); cursor: pointer; text-align: center; flex: 1; position: relative; user-select: none; transition: transform 0.1s, background-color 0.3s; font-weight: 500; }
+        .list-card:hover { transform: scale(1.02); }
+        .list-share-btn { padding: 5px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 0.9rem; text-align: center; transition: background 0.2s; }
+        .list-share-btn:hover { background: var(--pastel-blue); }
+        
+        #context-menu { position: absolute; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); box-shadow: 2px 2px 10px rgba(0,0,0,0.2); border-radius: 5px; z-index: 1000; width: 150px; }
+        .context-item { padding: 10px; cursor: pointer; border-bottom: 1px solid var(--border-color); }
+        .context-item:hover { background: var(--bg-light); }
+
+        .btn { padding: 10px 18px; cursor: pointer; border: none; border-radius: 8px; font-weight: bold; position: relative; transition: background-color 0.2s, transform 0.2s; }
+        .badge { position: absolute; top: -8px; right: -8px; background: white; color: #e74c3c; border-radius: 50%; padding: 2px 8px; font-size: 0.8rem; border: 2px solid #e74c3c; min-width: 10px; text-align: center; font-weight: bold; }
+
+        input[type="text"], select, textarea { padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); font-family: inherit; }
+
+        .settings-btn { position: fixed; bottom: 20px; right: 20px; background: #8b4513; color: white; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; z-index: 100; }
+        .color-dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid white; display: inline-block; margin-right: 5px; }
+        .quiz-box { background: var(--card-bg); padding: 30px; border-radius: 20px; max-width: 450px; margin: 20px auto; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
+        
+        .shop-item-row { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 10px; margin-bottom: 5px; border-radius: 10px; border: 1px solid var(--border-color); }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 15px 0; }
+        .stat-box { background: var(--card-bg); border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .stat-val { font-size: 1.4rem; font-weight: bold; margin-top: 5px; }
+        .problem-word { color: #e74c3c; font-weight: bold; font-size: 1.1rem; word-break: break-all; }
+
+        .chart-container { margin-top: 15px; background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .chart-title { font-weight: bold; font-size: 0.9rem; color: #7f8c8d; margin-bottom: 15px; display: flex; justify-content: space-between; }
+        .bar-chart { display: flex; justify-content: space-between; align-items: flex-end; height: 120px; padding-top: 10px; }
+        .bar-wrapper { display: flex; flex-direction: column; align-items: center; flex: 1; }
+        .bar { width: 60%; background: linear-gradient(180deg, var(--pastel-blue), var(--beige-accent)); border-radius: 4px 4px 0 0; min-height: 2px; transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        .bar-val { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; font-weight: bold; }
+        .bar-label { font-size: 0.75rem; margin-top: 8px; color: #7f8c8d; }
+
+        .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 500px; margin: 20px auto; }
+        .memory-card { height: 80px; display: flex; align-items: center; justify-content: center; background: #8b4513; color: transparent; border-radius: 8px; font-weight: bold; font-size: 0.9rem; padding: 5px; cursor: pointer; text-align: center; user-select: none; transition: background 0.2s, transform 0.2s; border: 2px solid var(--border-color); overflow: hidden; word-break: break-word; }
+        .memory-card.flipped { background: var(--card-bg); color: var(--text-color); transform: scale(1.03); }
+        .memory-card.matched { background: var(--pastel-green) !important; color: var(--text-color) !important; visibility: hidden; opacity: 0; transition: visibility 0s 0.3s, opacity 0.3s linear; }
+        #memory-timer { font-size: 1.5rem; font-weight: bold; color: #e74c3c; margin-bottom: 10px; font-family: monospace; }
+
+        .survival-hearts { font-size: 1.8rem; margin: 10px 0; color: #e74c3c; }
+        .progress-bar-container { width: 100%; height: 12px; background: var(--bg-dark); border-radius: 6px; margin: 15px 0; overflow: hidden; border: 1px solid var(--border-color); }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #f39c12, #e74c3c); width: 100%; transition: width 0.1s linear; }
+        .survival-score { font-size: 1.2rem; font-weight: bold; margin: 10px 0; }
+
+        .box-info-tag { font-size: 0.85rem; font-weight: bold; color: #7f8c8d; background: var(--bg-dark); padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 10px; }
+
+        .mic-btn { font-size: 3.5rem; background: #e74c3c; color: white; border: none; border-radius: 50%; width: 90px; height: 90px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; margin: 15px 0; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4); transition: transform 0.2s, background-color 0.2s; }
+        .mic-btn:active { transform: scale(0.92); }
+        .mic-btn.recording { background: #2ecc71; animation: pulseMic 1.2s infinite; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.6); }
+        @keyframes pulseMic { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
+        .spoken-preview { font-style: italic; color: #7f8c8d; min-height: 20px; margin: 5px 0; font-size: 1.1rem; }
+
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: var(--card-bg); color: var(--text-color); padding: 25px; border-radius: 20px; max-width: 90%; width: 360px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        #qrcode-canvas { margin: 15px auto; display: block; max-width: 200px; max-height: 200px; border: 4px solid white; border-radius: 8px; }
+
+        .audio-waves { display: flex; justify-content: center; gap: 6px; margin: 20px auto; height: 40px; width: 100px; }
+        .wave-bar { width: 8px; height: 100%; background: #2ecc71; border-radius: 4px; animation: wavePulse 1.2s infinite ease-in-out; }
+        .wave-bar:nth-child(2) { animation-delay: 0.2s; background: #3498db; }
+        .wave-bar:nth-child(3) { animation-delay: 0.4s; background: #9b59b6; }
+        .wave-bar:nth-child(4) { animation-delay: 0.6s; background: #e67e22; }
+        @keyframes wavePulse { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
+
+        /* NEU: Individuelle Farben für die Lernmodi */
+        .btn-autopilot { background-color: #b3c5d7 !important; color: #fff !important; }
+        .btn-box        { background-color: #d1b3c4 !important; color: #fff !important; }
+        .btn-voice      { background-color: #b3d1ff !important; color: #4a475a !important; }
+        .btn-mc         { background-color: #ffdfba !important; color: #4a475a !important; }
+        .btn-write      { background-color: #baffc9 !important; color: #4a475a !important; }
+        .btn-memory     { background-color: #e8caa4 !important; color: #fff !important; }
+        .btn-survival   { background-color: #ffb3ba !important; color: #4a475a !important; }
+
+        /* Spezial-Styling für den Test-Button (Pulsierend & Hebt sich ab) */
+        .btn-test-highlight {
+            background: linear-gradient(135deg, #8b4513, #a0522d) !important;
+            color: white !important;
+            border: 2px solid #d2b48c !important;
+            box-shadow: 0 4px 15px rgba(139, 69, 19, 0.4) !important;
+            transform: scale(1.03);
+            animation: testPulse 2s infinite ease-in-out;
+        }
+        @keyframes testPulse {
+            0%, 100% { transform: scale(1.03); box-shadow: 0 4px 15px rgba(139, 69, 19, 0.4); }
+            50% { transform: scale(1.06); box-shadow: 0 6px 20px rgba(139, 69, 19, 0.6); }
+        }
+    </style>
+</head>
+<body onclick="hideContextMenu()">
+
+    <div id="context-menu" class="hidden">
+        <div class="context-item" onclick="renameSpecificList()">✏️ Umbenennen</div>
+        <div class="context-item" onclick="deleteFullGroup()" style="color: red;">🗑️ Ganze Gruppe löschen</div>
+    </div>
+
+    <div id="modal-share" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="share-title" style="margin-top:0;">Liste teilen</h3>
+            <canvas id="qrcode-canvas"></canvas>
+            <p style="font-size:0.85rem; color:#7f8c8d; margin-bottom:15px;">Dein Freund kann diesen Code im „Neue Liste“-Menü einscannen!</p>
+            <button class="btn" style="background:var(--bg-dark); color:var(--text-color); width:100%;" onclick="document.getElementById('modal-share').classList.add('hidden')">Schließen</button>
+        </div>
+    </div>
+
+    <div id="modal-scan" class="modal hidden">
+        <div class="modal-content" style="width: 450px; max-width:95%;">
+            <h3>QR-Code scannen</h3>
+            <div id="scanner-view" style="width:100%; background:#000; border-radius:10px; overflow:hidden;"></div>
+            <p id="scanner-feedback" style="font-size:0.9rem; color:#7f8c8d; margin-top:10px;">Kamera auf den QR-Code richten...</p>
+            <button class="btn" style="background:#e74c3c; color:white; width:100%; margin-top:10px;" onclick="stopQRScanner()">Abbrechen</button>
+        </div>
+    </div>
+
+    <div id="screen-home">
+        <header>
+            <h1 id="app-title">Vokabel-Trainer</h1>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <div style="background:var(--card-bg); border:1px solid var(--border-color); padding:8px 12px; border-radius:20px; font-weight:bold; font-size:1.1rem;">
+                    🍏 <span id="home-apple-count">0</span>
+                </div>
+                <button class="btn" style="background:#e74c3c; color:white;" onclick="showErrors()">
+                    Fehler <span id="error-badge" class="badge hidden">0</span>
+                </button>
+                <button class="btn" style="background:var(--beige-accent); color:var(--text-color);" onclick="showScreen('screen-create')">Neue Liste</button>
+            </div>
+        </header>
+
+        <div class="score-board" id="board">
+            <h2 style="margin:0;">PUNKTE-TAFEL</h2>
+            <div id="total-score" style="font-size: 2.5rem; color: #f1c40f;">0</div>
+        </div>
+
+        <div id="pet-display" class="pet-gallery"></div>
+        <div id="lists-display" class="list-container"></div>
+        <div class="settings-btn" onclick="showScreen('screen-settings')">⚙</div>
+    </div>
+
+    <div id="screen-settings" class="hidden">
+        <button class="btn" onclick="showScreen('screen-home')" style="float:right; background:var(--bg-dark); color:var(--text-color);">X</button>
+        <h2>Einstellungen & Statistiken</h2>
+        
+        <fieldset style="border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 20px; background: rgba(0,0,0,0.02);">
+            <legend style="font-weight: bold; padding: 0 10px;">📊 Statistik-Zentrale</legend>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div style="font-size: 0.85rem; color: #7f8c8d;">Lern-Streak</div>
+                    <div class="stat-val" id="stat-streak">🔥 0 Tage</div>
+                </div>
+                <div class="stat-box">
+                    <div style="font-size: 0.85rem; color: #7f8c8d;">Diese Woche</div>
+                    <div class="stat-val" id="stat-week-count">📚 0 Wörter</div>
+                </div>
+                <div class="stat-box">
+                    <div style="font-size: 0.85rem; color: #7f8c8d;">Survival-Bestwert</div>
+                    <div class="stat-val" id="stat-survival-highscore" style="color:#e67e22;">🏆 0</div>
+                </div>
+            </div>
+            <div class="stat-box" style="text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <div>
+                    <div style="font-size: 0.85rem; color: #7f8c8d;">Absolute Problem-Vokabel:</div>
+                    <div id="stat-problem-word" class="problem-word" style="margin-top: 3px;">Keine Sorgenkinder! 🎉</div>
+                </div>
+                <div class="stat-val" id="stat-problem-count" style="font-size: 1rem; color: #7f8c8d; min-width: 60px; text-align: right;"></div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">
+                    <span>📅 Aktivität der letzten 7 Tage</span>
+                    <span style="color:var(--text-color); font-weight:bold;" id="chart-total-count">0 gelernt</span>
+                </div>
+                <div class="bar-chart" id="activity-chart"></div>
+            </div>
+        </fieldset>
+
+        <div style="margin:15px 0;">
+            <label style="font-weight:bold;">Dein Name:</label><br>
+            <input type="text" id="user-name-input" oninput="updateName(this.value)" placeholder="Dein Name..." style="width:80%; margin-top:5px;">
+        </div>
+
+        <div style="margin:20px 0;">
+            <label style="font-weight:bold;">App-Design (Theme):</label><br>
+            <select id="theme-select" onchange="updateTheme(this.value)" style="width:85%; margin-top:5px; cursor:pointer;">
+                <option value="retro">Beige / Retro</option>
+                <option value="dark">Dark Mode</option>
+                <option value="aesthetic">Aesthetic / Pastel</option>
+            </select>
+        </div>
+
+        <div style="margin:20px 0;"><label style="font-weight:bold;">Tafelfarbe:</label><br>
+            <div style="margin-top:5px;">
+                <div class="color-dot" style="background:#ffb7b2;" onclick="updateBoardColor('#ffb7b2')"></div>
+                <div class="color-dot" style="background:#a2d2ff;" onclick="updateBoardColor('#a2d2ff')"></div>
+                <div class="color-dot" style="background:#bafca2;" onclick="updateBoardColor('#bafca2')"></div>
+                <div class="color-dot" style="background:#ffffba;" onclick="updateBoardColor('#ffffba')"></div>
+                <div class="color-dot" style="background:#e0bbe4;" onclick="updateBoardColor('#e0bbe4')"></div>
+            </div>
+        </div>
+        
+        <div id="shop-list" class="shop-container"></div>
+    </div>
+
+    <div id="screen-options" class="hidden" style="text-align:center;">
+        <h2 id="selected-list-name"></h2>
+        <div style="display: flex; flex-direction: column; gap: 12px; max-width: 250px; margin: 0 auto;">
+            <button class="btn btn-autopilot" style="font-size:1.05rem;" onclick="startLearning('autopilot')">🎧 Audio-Autopilot</button>
+            <hr style="border:0; border-top:1px solid var(--border-color); width:100%; margin:5px 0;">
+            <button class="btn btn-box" onclick="startLearning('box')">📦 Karteikasten-Modus</button>
+            <button class="btn btn-voice" onclick="startLearning('voice')">🗣️ Sprech-Trainer</button>
+            <button class="btn btn-mc" onclick="startLearning('mc')">Multiple Choice</button>
+            <button class="btn btn-write" onclick="startLearning('write')">Schreiben</button>
+            <button class="btn btn-memory" onclick="startLearning('memory')">🧠 Vokabel-Memory</button>
+            <button class="btn btn-survival" onclick="startLearning('survival')">🔥 SURVIVAL-RUN</button>
+            
+            <button class="btn btn-test-highlight" style="margin-top: 5px;" onclick="startLearning('test')">📝 TEST STARTEN</button>
+        </div>
+        <br><button class="btn" onclick="showScreen('screen-home')" style="background:var(--bg-dark); color:var(--text-color);">Zurück</button>
+    </div>
+
+    <div id="screen-parts" class="hidden" style="text-align:center;">
+        <button class="btn" style="background:var(--beige-accent); color:var(--text-color); margin:10px;" onclick="setupSession(1)">Teil 1</button>
+        <button class="btn" style="background:var(--beige-accent); color:var(--text-color); margin:10px;" onclick="setupSession(2)">Teil 2</button>
+    </div>
+
+    <div id="screen-quiz" class="hidden">
+        <div class="quiz-box">
+            <div id="box-indicator" class="box-info-tag hidden">Kasten 1</div>
+            <h2 id="question-word">...</h2>
+            
+            <div id="mc-area" style="display:flex; flex-direction:column; gap:10px;"></div>
+            <div id="write-area" class="hidden"><input type="text" id="write-input" style="width:80%;"></div>
+            
+            <div id="voice-area" class="hidden">
+                <button id="voice-mic-btn" class="mic-btn" onclick="toggleVoiceRecognition()">🎙️</button>
+                <div id="voice-preview" class="spoken-preview">Klicke aufs Mikrofon und sprich...</div>
+            </div>
+
+            <p id="feedback"></p>
+            <button id="btn-check" class="btn" style="background:var(--beige-accent); color:var(--text-color);" onclick="checkAnswer()">Auswerten</button>
+            <button id="btn-next" class="btn hidden" style="background:#27ae60; color:white;" onclick="nextQuestion()">Weiter</button>
+            <button id="btn-finish" class="btn hidden" style="background:#e67e22; color:white;" onclick="finishSession()">Abschließen</button>
+        </div>
+    </div>
+
+    <div id="screen-autopilot" class="hidden" style="text-align:center;">
+        <div class="quiz-box" style="max-width: 450px;">
+            <h3 style="color:#7f8c8d; margin-top:0;">🎧 Audio-Autopilot läuft</h3>
+            <div class="audio-waves">
+                <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+            </div>
+            <h1 id="autopilot-word" style="font-size:2.5rem; margin:20px 0;">...</h1>
+            <p id="autopilot-status" style="font-style:italic; color:#7f8c8d; font-size:1.1rem;">Bereite vor...</p>
+            <br>
+            <button class="btn" onclick="stopAutopilot()" style="background:#e74c3c; color:white; width:100%;">Autopilot beenden</button>
+        </div>
+    </div>
+
+    <div id="screen-memory" class="hidden" style="text-align:center;">
+        <h2>Vokabel-Memory (Zeitmodus)</h2>
+        <div id="memory-timer">⏱️ Restzeit: 45s</div>
+        <div id="memory-board" class="memory-grid"></div>
+        <br>
+        <button class="btn" onclick="exitMemory()" style="background:var(--bg-dark); color:var(--text-color);">Abbrechen</button>
+    </div>
+
+    <div id="screen-survival" class="hidden">
+        <div class="quiz-box" style="max-width:480px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="survival-hearts" id="survival-lives">❤️❤️❤️</div>
+                <div class="survival-score">Punkte: <span id="survival-current-score" style="color:#e67e22;">0</span></div>
+            </div>
+            <div class="progress-bar-container">
+                <div id="survival-progress-fill" class="progress-bar-fill"></div>
+            </div>
+            <h2 id="survival-question" style="font-size:2.2rem; margin:15px 0;">...</h2>
+            <input type="text" id="survival-input" placeholder="Übersetzung..." style="width:85%; font-size:1.2rem; text-align:center; padding:12px;" autocomplete="off">
+            <p id="survival-feedback" style="min-height:24px; font-weight:bold; margin-top:10px;"></p>
+        </div>
+    </div>
+
+    <div id="screen-create" class="hidden">
+        <h2>Neue Liste erstellen</h2>
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <button class="btn" style="flex:1; background:#2ecc71; color:white;" onclick="startQRScanner()">📷 QR-Code scannen</button>
+        </div>
+        <fieldset style="border:1px dashed var(--border-color); border-radius:10px; padding:15px; margin-bottom:20px;">
+            <legend style="font-weight:bold; padding:0 8px;">📋 Excel / Text-Import</legend>
+            <p style="font-size:0.85rem; margin:0 0 10px 0; color:#7f8c8d;">Format: <code>Wort;Übersetzung</code></p>
+            <textarea id="excel-import-text" rows="4" style="width:95%; resize:vertical;" placeholder="Hund;dog&#10;Katze;cat"></textarea>
+            <button class="btn" style="background:var(--pastel-blue); color:var(--text-color); margin-top:8px; width:100%;" onclick="processExcelImport()">In Felder importieren</button>
+        </fieldset>
+        <div id="word-inputs">
+            <div class="input-row" style="display:flex; gap:10px; margin-bottom:10px;">
+                <input type="text" placeholder="Sprache 1 (z.B. Deutsch)" class="lang1" style="flex:1;">
+                <input type="text" placeholder="Sprache 2 (z.B. Englisch)" class="lang2" style="flex:1;">
+            </div>
+        </div>
+        <button class="btn" onclick="addInputRow()" style="background:var(--bg-dark); color:var(--text-color);">+ Wort hinzufügen</button>
+        <button class="btn" style="background:#27ae60; color:white; float:right;" onclick="finishList()">Liste Speichern</button>
+        <br><br><br>
+        <button class="btn" onclick="showScreen('screen-home')" style="background:var(--bg-dark); color:var(--text-color); width:100%;">Zurück</button>
+    </div>
+
+    <script>
+        let allLists = JSON.parse(localStorage.getItem('vLists')) || [];
+        let errorList = JSON.parse(localStorage.getItem('vErrors')) || [];
+        let totalScore = parseInt(localStorage.getItem('vScore')) || 0;
+        let userName = localStorage.getItem('vUserName') || "";
+        let boardCol = localStorage.getItem('vBoardCol') || "#5d5b59";
+        let ownedPets = JSON.parse(localStorage.getItem('vPets')) || [];
+        let activeTheme = localStorage.getItem('vTheme') || "retro";
+
+        let streak = parseInt(localStorage.getItem('vStreak')) || 0;
+        let lastLearnDate = localStorage.getItem('vLastLearnDate') || ""; 
+        let learnedHistory = JSON.parse(localStorage.getItem('vLearnedHistory')) || []; 
+        let failTracker = JSON.parse(localStorage.getItem('vFailTracker')) || {}; 
+        let survivalHighscore = parseInt(localStorage.getItem('vSurvivalHighscore')) || 0;
+        let leitnerBoxes = JSON.parse(localStorage.getItem('vLeitnerBoxes')) || {};
+
+        let appleCount = parseInt(localStorage.getItem('vApples')) || 0;
+
+        let ctxIdx = null, ctxType = null;
+        let currentList, currentMode, currentWords, currentIndex, correctCount, isErrorMode = false;
+        let listIndexGlobal = null, listTypeGlobal = null;
+
+        let memoryCardsSelected = [], memoryTimerInterval = null, memoryTimeLeft = 0, memoryPairsMatched = 0, memoryTotalPairs = 0;
+        let survivalLives = 3, survivalScore = 0, survivalIndex = 0, survivalWords = [], survivalTimer = null, survivalBaseTime = 8000, survivalCurrentTime = 8000, survivalStartTimestamp;
+
+        let speechRecognitionEngine = null;
+        let isVoiceRecording = false;
+        let lastSpokenAnswer = "";
+        let html5QrScanner = null;
+        let autopilotTimeout = null;
+
+        const shopItems = [
+            { id: 1, name: 'Papagei', price: 100, icon: '🦜' }, { id: 2, name: 'Igel', price: 200, icon: '🦔' },
+            { id: 3, name: 'Schildkröte', price: 300, icon: '🐢' }, { id: 4, name: 'Esel', price: 400, icon: '𫘋' },
+            { id: 5, name: 'Pony', price: 500, icon: '🐴' }, { id: 6, name: 'Delfin', price: 600, icon: '🐬' },
+            { id: 7, name: 'Eisbär', price: 700, icon: '🧊🐻' }, { id: 8, name: 'Schmetterling', price: 800, icon: '🦋' },
+            { id: 9, name: 'Löwe', price: 900, icon: '🦁' }, { id: 10, name: 'Axolotl', price: 1000, icon: '🦎' }
+        ];
+
+        function checkStreakOnLoad() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (lastLearnDate && lastLearnDate !== todayStr) {
+                const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toISOString().split('T')[0];
+                if (lastLearnDate !== yesterdayStr) { streak = 0; save(); }
+            }
+        }
+
+        function showCtx(e, idx, type) {
+            e.preventDefault(); ctxIdx = idx; ctxType = type;
+            const m = document.getElementById('context-menu');
+            m.style.left = e.pageX + "px"; m.style.top = e.pageY + "px";
+            m.classList.remove('hidden');
+        }
+        function hideContextMenu() { document.getElementById('context-menu').classList.add('hidden'); }
+
+        function renameSpecificList() {
+            const list = allLists[ctxIdx];
+            const oldName = ctxType === 1 ? (list.name1 || list.name + " (1)") : (list.name2 || list.name + " (2)");
+            const newName = prompt("Neuer Name für diese Karte:", oldName);
+            if(newName) {
+                if(ctxType === 1) allLists[ctxIdx].name1 = newName; else allLists[ctxIdx].name2 = newName;
+                save(); renderHome();
+            }
+        }
+
+        function deleteFullGroup() {
+            if(confirm("Willst du die ganze Gruppe (1 und 2) löschen?")) { allLists.splice(ctxIdx, 1); save(); renderHome(); }
+        }
+
+        function renderHome() {
+            document.documentElement.setAttribute('data-theme', activeTheme);
+            document.getElementById('theme-select').value = activeTheme;
+            document.getElementById('total-score').innerText = totalScore;
+            document.getElementById('home-apple-count').innerText = appleCount;
+            document.getElementById('app-title').innerText = userName ? userName + "s Vokabeln" : "Vokabel-Trainer";
+            document.getElementById('board').style.backgroundColor = boardCol;
+            
+            const eBadge = document.getElementById('error-badge');
+            if(errorList.length > 0) { eBadge.innerText = errorList.length; eBadge.classList.remove('hidden'); }
+            else eBadge.classList.add('hidden');
+
+            const petDisp = document.getElementById('pet-display');
+            petDisp.innerHTML = '';
+            ownedPets.forEach(id => {
+                const pet = shopItems.find(i=>i.id===id);
+                if (pet) {
+                    petDisp.innerHTML += `<span class="pet-item" id="pet-home-${id}" onclick="feedPetHome(${id})" title="Klicke zum Füttern!">${pet.icon}</span>`;
+                }
+            });
+
+            const container = document.getElementById('lists-display');
+            container.innerHTML = '';
+            allLists.forEach((l, i) => {
+                const group = document.createElement('div'); group.className = 'list-group';
+                const cardRow = document.createElement('div'); cardRow.className = 'list-row-cards';
+                [1,2].forEach(t => {
+                    const card = document.createElement('div'); card.className = 'list-card';
+                    card.innerText = (t===1 ? (l.name1 || l.name+" (1)") : (l.name2 || l.name+" (2)"));
+                    card.onclick = () => { isErrorMode = false; selectList(i, t); };
+                    card.oncontextmenu = (e) => showCtx(e, i, t);
+                    cardRow.appendChild(card);
+                });
+                group.appendChild(cardRow);
+
+                const shareBtn = document.createElement('button');
+                shareBtn.className = 'list-share-btn';
+                shareBtn.innerHTML = '🔗 Liste teilen (QR-Code)';
+                shareBtn.onclick = () => generateShareQR(i);
+                group.appendChild(shareBtn);
+
+                container.appendChild(group);
+            });
+        }
+
+        function feedPetHome(id) {
+            if(appleCount <= 0) {
+                alert("Du hast keine Äpfel mehr! Lerne Vokabeln, um neue Äpfel (🍏) zu sammeln.");
+                return;
+            }
+            appleCount--;
+            document.getElementById('home-apple-count').innerText = appleCount;
+            save();
+
+            const petElement = document.getElementById(`pet-home-${id}`);
+            if(petElement) {
+                petElement.classList.add('eating');
+                const speech = new SpeechSynthesisUtterance("Mampf, mampf, lecker!");
+                speech.lang = "de-DE";
+                window.speechSynthesis.speak(speech);
+                
+                setTimeout(() => {
+                    petElement.classList.remove('eating');
+                }, 1500);
+            }
+        }
+
+        function generateShareQR(idx) {
+            const listToShare = allLists[idx];
+            const dataString = listToShare.name + "|" + listToShare.words.map(w => `${w.l1},${w.l2}`).join(';');
+            document.getElementById('share-title').innerText = `„${listToShare.name}“ teilen`;
+            document.getElementById('modal-share').classList.remove('hidden');
+            QRCode.toCanvas(document.getElementById('qrcode-canvas'), dataString, { width: 200, margin: 1 }, function (error) {
+                if (error) { alert("Fehler beim Erstellen des QR-Codes"); console.error(error); }
+            });
+        }
+
+        function startQRScanner() {
+            document.getElementById('modal-scan').classList.remove('hidden');
+            html5QrScanner = new Html5Qrcode("scanner-view");
+            html5QrScanner.start(
+                { facingMode: "environment" }, 
+                { fps: 10, qrbox: 250 },
+                (decodedText) => {
+                    stopQRScanner();
+                    try {
+                        const parts = decodedText.split('|');
+                        if(parts.length < 2) throw new Error();
+                        const listName = parts[0];
+                        const wordPairs = parts[1].split(';');
+                        let importedWords = [];
+                        wordPairs.forEach(p => {
+                            const pair = p.split(',');
+                            if(pair.length === 2) importedWords.push({l1: pair[0], l2: pair[1]});
+                        });
+                        if(importedWords.length > 0) {
+                            allLists.push({name: listName + " (Import)", words: importedWords});
+                            save();
+                            alert(`🎉 Liste „${listName}“ erfolgreich importiert!`);
+                            showScreen('screen-home');
+                        }
+                    } catch(e) { alert("Ungültiger QR-Code!"); }
+                },
+                () => {}
+            ).catch(err => {
+                alert("Kamera-Zugriff verweigert.");
+                stopQRScanner();
+            });
+        }
+
+        function stopQRScanner() {
+            document.getElementById('modal-scan').classList.add('hidden');
+            if(html5QrScanner) { html5QrScanner.stop().then(() => html5QrScanner.clear()).catch(e=>console.log(e)); }
+        }
+
+        function showErrors() {
+            if(errorList.length === 0) return alert("Keine Fehler vorhanden!");
+            isErrorMode = true; listIndexGlobal = null; listTypeGlobal = null;
+            currentList = { name: "Fehlertraining", words: [...errorList] };
+            document.getElementById('selected-list-name').innerText = "Fehlertraining";
+            showScreen('screen-options');
+        }
+
+        function selectList(idx, type) {
+            listIndexGlobal = idx; listTypeGlobal = type;
+            const l = allLists[idx];
+            currentList = { name: l.name, words: l.words.map(w => ({ q: type==1?w.l1:w.l2, a: type==1?w.l2:w.l1 })) };
+            document.getElementById('selected-list-name').innerText = (type===1 ? (l.name1 || l.name+" (1)") : (l.name2 || l.name+" (2)"));
+            showScreen('screen-options');
+        }
+
+        function startLearning(m) { 
+            currentMode = m; 
+            if (m === 'memory') setupMemory();
+            else if (m === 'survival') setupSurvival();
+            else if (m === 'box') setupBoxSystem();
+            else if (m === 'autopilot') setupAudioAutopilot();
+            else m === 'test' || isErrorMode || m === 'voice' ? setupSession(0) : showScreen('screen-parts'); 
+        }
+
+        function setupAudioAutopilot() {
+            currentWords = [...currentList.words];
+            currentWords.sort(() => Math.random() - 0.5);
+            currentIndex = 0;
+            showScreen('screen-autopilot');
+            runAutopilotCycle();
+        }
+
+        function runAutopilotCycle() {
+            if(currentIndex >= currentWords.length) {
+                document.getElementById('autopilot-word').innerText = "🎉 Fertig!";
+                document.getElementById('autopilot-status').innerText = "Liste komplett wiederholt.";
+                totalScore += 10; updateStreak(); save();
+                setTimeout(() => { showScreen('screen-home'); }, 2000);
+                return;
+            }
+
+            const w = currentWords[currentIndex];
+            document.getElementById('autopilot-word').innerText = w.q;
+            document.getElementById('autopilot-status').innerText = "Frage wird vorgelesen...";
+            
+            let msgQ = new SpeechSynthesisUtterance(w.q);
+            window.speechSynthesis.speak(msgQ);
+
+            msgQ.onend = () => {
+                document.getElementById('autopilot-status').innerText = "Überlege... (3s Zeit)";
+                autopilotTimeout = setTimeout(() => {
+                    document.getElementById('autopilot-status').innerText = `Lösung: ${w.a}`;
+                    let msgA = new SpeechSynthesisUtterance(w.a);
+                    window.speechSynthesis.speak(msgA);
+                    
+                    msgA.onend = () => {
+                        trackLearnedWord();
+                        currentIndex++;
+                        autopilotTimeout = setTimeout(runAutopilotCycle, 1500);
+                    };
+                }, 3000);
+            };
+        }
+
+        function stopAutopilot() {
+            clearTimeout(autopilotTimeout);
+            window.speechSynthesis.cancel();
+            showScreen('screen-options');
+        }
+
+        function initVoiceRecognition() {
+            const SpeechEngine = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if(!SpeechEngine) { alert("Browser-Spracherkennung nicht unterstützt."); return false; }
+            speechRecognitionEngine = new SpeechEngine();
+            speechRecognitionEngine.continuous = false; speechRecognitionEngine.interimResults = false; speechRecognitionEngine.lang = 'en-US';
+            speechRecognitionEngine.onstart = () => {
+                isVoiceRecording = true; document.getElementById('voice-mic-btn').classList.add('recording');
+                document.getElementById('voice-preview').innerText = "🎙️ Ich höre zu... Sprich jetzt!";
+            };
+            speechRecognitionEngine.onresult = (event) => {
+                const resultText = event.results[0][0].transcript;
+                lastSpokenAnswer = resultText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();
+                document.getElementById('voice-preview').innerHTML = `Verstanden: <b>"${lastSpokenAnswer}"</b>`;
+            };
+            speechRecognitionEngine.onerror = (e) => { document.getElementById('voice-preview').innerText = "Fehler. Erneut versuchen."; };
+            speechRecognitionEngine.onend = () => { isVoiceRecording = false; document.getElementById('voice-mic-btn').classList.remove('recording'); };
+            return true;
+        }
+
+        function toggleVoiceRecognition() {
+            if(!speechRecognitionEngine) { if(!initVoiceRecognition()) return; }
+            if(isVoiceRecording) { speechRecognitionEngine.stop(); } else { lastSpokenAnswer = ""; speechRecognitionEngine.start(); }
+        }
+
+        function setupBoxSystem() {
+            if(isErrorMode || listIndexGlobal === null) return alert("Nur in regulären Listen verfügbar!");
+            const today = new Date().toISOString().split('T')[0];
+            const listKey = `list_${listIndexGlobal}_type_${listTypeGlobal}`;
+            if(!leitnerBoxes[listKey]) leitnerBoxes[listKey] = {};
+
+            currentList.words.forEach(w => {
+                if(!leitnerBoxes[listKey][w.q]) leitnerBoxes[listKey][w.q] = { box: 1, nextReview: today };
+            });
+            save();
+
+            currentWords = currentList.words.filter(w => {
+                const data = leitnerBoxes[listKey][w.q]; return !data.nextReview || data.nextReview <= today;
+            });
+
+            if(currentWords.length === 0) { alert("🎉 Alles erledigt für heute!"); showScreen('screen-home'); return; }
+            currentIndex = 0; correctCount = 0; currentMode = 'write';
+            showScreen('screen-quiz'); loadQuestion();
+        }
+
+        function updateLeitnerCard(wordQ, isCorrect) {
+            if(listIndexGlobal === null || isErrorMode) return;
+            const listKey = `list_${listIndexGlobal}_type_${listTypeGlobal}`;
+            if(!leitnerBoxes[listKey] || !leitnerBoxes[listKey][wordQ]) return;
+            let cardData = leitnerBoxes[listKey][wordQ]; const today = new Date();
+            if(isCorrect) cardData.box = Math.min(3, cardData.box + 1); else cardData.box = 1;
+            let daysToAdd = cardData.box === 2 ? 2 : (cardData.box === 3 ? 5 : 1);
+            today.setDate(today.getDate() + daysToAdd); cardData.nextReview = today.toISOString().split('T')[0];
+            leitnerBoxes[listKey][wordQ] = cardData; save();
+        }
+
+        function processExcelImport() {
+            const rawText = document.getElementById('excel-import-text').value.trim(); if (!rawText) return;
+            const lines = rawText.split('\n'); let addedCount = 0;
+            const firstRow = document.querySelector('.input-row');
+            if(firstRow && !firstRow.querySelector('.lang1').value && !firstRow.querySelector('.lang2').value) { document.getElementById('word-inputs').innerHTML = ''; }
+            lines.forEach(line => {
+                let parts = line.includes(';') ? line.split(';') : line.split('\t');
+                if (parts.length >= 2) {
+                    const l1 = parts[0].trim(), l2 = parts[1].trim();
+                    if(l1 && l2) {
+                        const d = document.createElement('div'); d.className="input-row"; d.style.display="flex"; d.style.gap="10px"; d.style.marginBottom="10px";
+                        d.innerHTML = `<input type="text" class="lang1" value="${l1}" style="flex:1;"><input type="text" class="lang2" value="${l2}" style="flex:1;">`;
+                        document.getElementById('word-inputs').appendChild(d); addedCount++;
+                    }
+                }
+            });
+            if(addedCount > 0) { alert(`Erfolgreich ${addedCount} Vokabeln importiert!`); document.getElementById('excel-import-text').value = ''; }
+        }
+
+        function setupSurvival() {
+            survivalWords = [...currentList.words]; if(survivalWords.length < 2) return alert("Mindestens 2 Wörter nötig!");
+            survivalLives = 3; survivalScore = 0; survivalIndex = 0; survivalCurrentTime = survivalBaseTime;
+            survivalWords.sort(() => Math.random() - 0.5);
+            document.getElementById('survival-current-score').innerText = survivalScore;
+            updateSurvivalHearts(); showScreen('screen-survival');
+            const inputField = document.getElementById('survival-input'); inputField.value = ''; inputField.focus();
+            inputField.onkeydown = (e) => { if(e.key === 'Enter') checkSurvivalAnswer(); };
+            loadSurvivalQuestion();
+        }
+
+        function loadSurvivalQuestion() {
+            if(survivalLives <= 0) return;
+            if(survivalIndex >= survivalWords.length) { survivalWords.sort(() => Math.random() - 0.5); survivalIndex = 0; }
+            const w = survivalWords[survivalIndex]; document.getElementById('survival-question').innerText = w.q;
+            document.getElementById('survival-input').value = ''; document.getElementById('survival-feedback').innerText = '';
+            survivalCurrentTime = Math.max(2000, survivalBaseTime - (survivalScore * 250));
+            survivalStartTimestamp = Date.now(); clearInterval(survivalTimer);
+            survivalTimer = setInterval(() => {
+                const elapsed = Date.now() - survivalStartTimestamp;
+                const percentage = Math.max(0, 100 - (elapsed / survivalCurrentTime * 100));
+                document.getElementById('survival-progress-fill').style.width = percentage + "%";
+                if(elapsed >= survivalCurrentTime) {
+                    clearInterval(survivalTimer); survivalFeedback(false, `Zeit um! Richtig: ${w.a}`);
+                    survivalLives--; updateSurvivalHearts(); nextSurvivalOrEnd();
+                }
+            }, 50);
+        }
+
+        function checkSurvivalAnswer() {
+            clearInterval(survivalTimer); const w = survivalWords[survivalIndex];
+            const userAns = document.getElementById('survival-input').value.trim().toLowerCase();
+            if(userAns === w.a.toLowerCase()) {
+                survivalScore++; document.getElementById('survival-current-score').innerText = survivalScore;
+                survivalFeedback(true, "Richtig! 🔥"); trackLearnedWord(); nextSurvivalOrEnd();
+            } else {
+                survivalLives--; updateSurvivalHearts(); failTracker[w.q] = (failTracker[w.q] || 0) + 1;
+                survivalFeedback(false, `Falsch! Richtig: ${w.a}`); nextSurvivalOrEnd();
+            }
+        }
+
+        function survivalFeedback(isCorrect, msg) { const f = document.getElementById('survival-feedback'); f.innerText = msg; f.style.color = isCorrect ? "green" : "red"; }
+        function updateSurvivalHearts() { let hearts = ""; for(let i=0; i<3; i++) hearts += i < survivalLives ? "❤️" : "🖤"; document.getElementById('survival-lives').innerText = hearts; }
+        function nextSurvivalOrEnd() {
+            survivalIndex++;
+            if(survivalLives <= 0) {
+                clearInterval(survivalTimer);
+                setTimeout(() => {
+                    alert(`💥 Game Over! Punkte: ${survivalScore}`);
+                    if(survivalScore > survivalHighscore) { survivalHighscore = survivalScore; alert("🏆 Neuer Highscore!"); }
+                    totalScore += survivalScore; updateStreak(); save(); showScreen('screen-home');
+                }, 1500);
+            } else { setTimeout(loadSurvivalQuestion, 1200); }
+        }
+
+        function setupMemory() {
+            let originalWords = [...currentList.words]; if(originalWords.length < 3) return alert("Mindestens 3 Vokabeln nötig!");
+            originalWords.sort(() => Math.random() - 0.5); let selectedWords = originalWords.slice(0, 6);
+            memoryTotalPairs = selectedWords.length; memoryPairsMatched = 0; memoryCardsSelected = [];
+            let deck = []; selectedWords.forEach((w, index) => { deck.push({ id: index, text: w.q, type: 'q' }); deck.push({ id: index, text: w.a, type: 'a' }); });
+            deck.sort(() => Math.random() - 0.5);
+            const board = document.getElementById('memory-board'); board.innerHTML = '';
+            deck.forEach(cardData => {
+                const card = document.createElement('div'); card.className = 'memory-card'; card.innerText = cardData.text;
+                card.dataset.id = cardData.id; card.dataset.type = cardData.type; card.onclick = () => flipMemoryCard(card); board.appendChild(card);
+            });
+            memoryTimeLeft = memoryTotalPairs * 8; document.getElementById('memory-timer').innerText = `⏱️ Restzeit: ${memoryTimeLeft}s`;
+            showScreen('screen-memory'); clearInterval(memoryTimerInterval);
+            memoryTimerInterval = setInterval(() => {
+                memoryTimeLeft--; document.getElementById('memory-timer').innerText = `⏱️ Restzeit: ${memoryTimeLeft}s`;
+                if(memoryTimeLeft <= 0) { clearInterval(memoryTimerInterval); alert("Zeit abgelaufen! ⏳"); showScreen('screen-home'); }
+            }, 1000);
+        }
+
+        function flipMemoryCard(card) {
+            if(card.classList.contains('flipped') || card.classList.contains('matched') || memoryCardsSelected.length >= 2) return;
+            card.classList.add('flipped'); memoryCardsSelected.push(card);
+            if(memoryCardsSelected.length === 2) {
+                const card1 = memoryCardsSelected[0], card2 = memoryCardsSelected[1];
+                if(card1.dataset.id === card2.dataset.id && card1.dataset.type !== card2.dataset.type) {
+                    setTimeout(() => {
+                        card1.classList.add('matched'); card2.classList.add('matched'); memoryPairsMatched++; memoryCardsSelected = []; trackLearnedWord();
+                        if(memoryPairsMatched === memoryTotalPairs) {
+                            clearInterval(memoryTimerInterval); totalScore += 25; updateStreak(); save(); alert(`🎉 Bonus: +25 Punkte!`); showScreen('screen-home');
+                        }
+                    }, 400);
+                } else { setTimeout(() => { card1.classList.remove('flipped'); card2.classList.remove('flipped'); memoryCardsSelected = []; }, 1000); }
+            }
+        }
+        function exitMemory() { clearInterval(memoryTimerInterval); showScreen('screen-home'); }
+
+        function setupSession(part) {
+            let w = [...currentList.words];
+            currentWords = part === 1 ? w.slice(0, Math.ceil(w.length/2)) : (part === 2 ? w.slice(Math.ceil(w.length/2)) : w);
+            currentIndex = 0; correctCount = 0; showScreen('screen-quiz'); loadQuestion();
+        }
+
+        function loadQuestion() {
+            const w = currentWords[currentIndex]; document.getElementById('question-word').innerText = w.q;
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(w.q));
+            document.getElementById('feedback').innerText = '';
+            document.getElementById('btn-check').classList.remove('hidden');
+            document.getElementById('btn-next').classList.add('hidden');
+            document.getElementById('btn-finish').classList.add('hidden');
+
+            const boxIndicator = document.getElementById('box-indicator');
+            if(listIndexGlobal !== null && !isErrorMode && leitnerBoxes[`list_${listIndexGlobal}_type_${listTypeGlobal}`]?.[w.q]) {
+                boxIndicator.innerText = `📦 Kasten ${leitnerBoxes[`list_${listIndexGlobal}_type_${listTypeGlobal}`][w.q].box}`; boxIndicator.classList.remove('hidden');
+            } else { boxIndicator.classList.add('hidden'); }
+
+            document.getElementById('mc-area').classList.add('hidden'); document.getElementById('write-area').classList.add('hidden'); document.getElementById('voice-area').classList.add('hidden');
+
+            if(currentMode === 'mc') { document.getElementById('mc-area').classList.remove('hidden'); generateMC(w.a); } 
+            else if(currentMode === 'voice') { document.getElementById('voice-area').classList.remove('hidden'); document.getElementById('voice-preview').innerText = "Klicke aufs Mikrofon..."; lastSpokenAnswer = ""; } 
+            else {
+                document.getElementById('write-area').classList.remove('hidden'); const wInput = document.getElementById('write-input'); wInput.value = '';
+                wInput.onkeydown = (e) => { if(e.key === 'Enter') checkAnswer(); };
+            }
+        }
+
+        function generateMC(ans) {
+            const area = document.getElementById('mc-area'); area.innerHTML = '';
+            let choices = [ans]; let others = currentList.words.map(w => w.a).filter(w => w !== ans); others.sort(() => Math.random()-0.5);
+            for(let i=0; i<2 && i<others.length; i++) choices.push(others[i]);
+            choices.sort(() => Math.random()-0.5).forEach(c => {
+                const b = document.createElement('button'); b.className = 'list-card'; b.style.width="100%"; b.innerText = c;
+                b.onclick = () => { document.querySelectorAll('#mc-area .list-card').forEach(x => x.style.background="var(--card-bg)"); b.style.background="var(--bg-dark)"; b.dataset.val = c; };
+                area.appendChild(b);
+            });
+        }
+
+        function checkAnswer() {
+            const w = currentWords[currentIndex];
+            let user = currentMode === 'mc' ? (document.querySelector('#mc-area .list-card[style*="background: var(--bg-dark)"]')?.dataset.val || "") : (currentMode === 'voice' ? lastSpokenAnswer : document.getElementById('write-input').value);
+            
+            if(user.trim().toLowerCase() === w.a.toLowerCase()) {
+                document.getElementById('feedback').innerText = "Richtig!"; document.getElementById('feedback').style.color = "green";
+                window.speechSynthesis.speak(new SpeechSynthesisUtterance(w.a));
+                correctCount++; if(isErrorMode) { errorList = errorList.filter(e => e.q !== w.q); save(); }
+                updateLeitnerCard(w.q, true); trackLearnedWord();
+            } else {
+                document.getElementById('feedback').innerText = `Falsch! Richtig: ${w.a}`; document.getElementById('feedback').style.color = "red";
+                failTracker[w.q] = (failTracker[w.q] || 0) + 1;
+                if(!isErrorMode && !errorList.find(e => e.q === w.q)) { errorList.push({q: w.q, a: w.a}); save(); }
+                updateLeitnerCard(w.q, false);
+            }
+            document.getElementById('btn-check').classList.add('hidden');
+            if(currentIndex < currentWords.length - 1) document.getElementById('btn-next').classList.remove('hidden'); else document.getElementById('btn-finish').classList.remove('hidden');
+        }
+
+        function nextQuestion() { currentIndex++; loadQuestion(); }
+        function finishSession() {
+            if(!isErrorMode) {
+                const p = (correctCount / currentWords.length) * 100;
+                let pts = p === 100 ? 20 : (p >= 50 ? 10 : 5);
+                totalScore += pts; updateStreak(); save(); alert(`Punkte: +${pts}`);
+            }
+            showScreen('screen-home');
+        }
+
+        function updateStreak() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (lastLearnDate !== todayStr) {
+                const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+                if (lastLearnDate === yesterday.toISOString().split('T')[0] || lastLearnDate === "") streak++; else streak = 1;
+                lastLearnDate = todayStr;
+            }
+        }
+
+        function trackLearnedWord() {
+            appleCount++;
+            const todayStr = new Date().toISOString().split('T')[0];
+            let dayRecord = learnedHistory.find(h => h.date === todayStr);
+            if(dayRecord) dayRecord.count++; else learnedHistory.push({date: todayStr, count: 1});
+            save();
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('stat-streak').innerText = `🔥 ${streak} ${streak === 1 ? 'Tag' : 'Tage'}`;
+            document.getElementById('stat-survival-highscore').innerText = `🏆 ${survivalHighscore}`;
+            const oneWeekAgo = new Date(); oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            let wordsThisWeek = 0; learnedHistory.forEach(h => { if(new Date(h.date) >= oneWeekAgo) wordsThisWeek += h.count; });
+            document.getElementById('stat-week-count').innerText = `📚 ${wordsThisWeek} ${wordsThisWeek === 1 ? 'Wort' : 'Wörter'}`;
+            let maxFails = 0, worstWord = ""; for(let word in failTracker) { if(failTracker[word] > maxFails) { maxFails = failTracker[word]; worstWord = word; } }
+            const pWordEl = document.getElementById('stat-problem-word'), pCountEl = document.getElementById('stat-problem-count');
+            if(maxFails > 0) { pWordEl.innerText = worstWord; pCountEl.innerText = `❌ ${maxFails}x`; } else { pWordEl.innerText = "Keine Sorgenkinder! 🎉"; pCountEl.innerText = ""; }
+
+            const chartArea = document.getElementById('activity-chart'); chartArea.innerHTML = '';
+            let totalChartWords = 0; let maxInChart = 5; let last7Days = [];
+            for(let i=6; i>=0; i--) {
+                let d = new Date(); d.setDate(d.getDate() - i); let dateStr = d.toISOString().split('T')[0];
+                let count = (learnedHistory.find(h => h.date === dateStr))?.count || 0;
+                totalChartWords += count; if(count > maxInChart) maxInChart = count;
+                last7Days.push({ count, label: d.toLocaleDateString('de-DE', { weekday: 'short' }).substring(0,2) });
+            }
+            document.getElementById('chart-total-count').innerText = `${totalChartWords} gelernt`;
+            last7Days.forEach(day => {
+                let heightPercent = (day.count / maxInChart) * 100; const barWrapper = document.createElement('div'); barWrapper.className = 'bar-wrapper';
+                barWrapper.innerHTML = `<div class="bar" style="height: ${heightPercent}%">${day.count > 0 ? `<div class="bar-val">${day.count}</div>` : ''}</div><div class="bar-label">${day.label}</div>`;
+                chartArea.appendChild(barWrapper);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { checkStreakOnLoad(); renderShop(); document.documentElement.setAttribute('data-theme', activeTheme); });
+
+        function renderShop() {
+            const list = document.getElementById('shop-list'); if(!list) return;
+            list.innerHTML = '<h3>🐾 Gehege (Fütterung & Shop)</h3>';
+            list.innerHTML += `<div style="background:var(--bg-dark); padding:10px; border-radius:10px; margin-bottom:15px; font-weight:bold; text-align:center;">Dein Vorrat: 🍏 ${appleCount} Futter-Äpfel</div>`;
+            
+            shopItems.forEach(item => {
+                const isOwned = ownedPets.includes(item.id);
+                list.innerHTML += `
+                    <div class="shop-item-row">
+                        <span>${item.icon} ${item.name} (${item.price} Pkt)</span>
+                        <div>
+                            <button class="btn" ${isOwned || totalScore < item.price ? 'disabled' : ''} style="background:var(--beige-accent); color:var(--text-color);" onclick="buyPet(${item.id}, ${item.price})">
+                                ${isOwned ? 'Gekauft' : 'Kaufen'}
+                            </button>
+                        </div>
+                    </div>`;
+            });
+        }
+        
+        function buyPet(id, pr) { totalScore -= pr; ownedPets.push(id); save(); renderShop(); renderHome(); }
+        function addInputRow() {
+            const d = document.createElement('div'); d.className="input-row"; d.style.display="flex"; d.style.gap="10px"; d.style.marginBottom="10px";
+            d.innerHTML = '<input type="text" placeholder="Sprache 1" class="lang1" style="flex:1;"><input type="text" placeholder="Sprache 2" class="lang2" style="flex:1;">';
+            document.getElementById('word-inputs').appendChild(d);
+        }
+        function finishList() {
+            const n = prompt("Name für diese Vokabelliste:"); if(!n) return;
+            let ws = []; document.querySelectorAll('.input-row').forEach(r => {
+                const l1 = r.querySelector('.lang1').value, l2 = r.querySelector('.lang2').value; if(l1 && l2) ws.push({l1, l2});
+            });
+            if(ws.length === 0) return alert("Liste leer!");
+            allLists.push({name: n, words: ws}); save(); showScreen('screen-home');
+        }
+        
+        function save() {
+            localStorage.setItem('vLists', JSON.stringify(allLists)); localStorage.setItem('vErrors', JSON.stringify(errorList)); localStorage.setItem('vScore', totalScore);
+            localStorage.setItem('vPets', JSON.stringify(ownedPets)); localStorage.setItem('vUserName', userName); localStorage.setItem('vBoardCol', boardCol);
+            localStorage.setItem('vTheme', activeTheme); localStorage.setItem('vStreak', streak); localStorage.setItem('vLastLearnDate', lastLearnDate);
+            localStorage.setItem('vLearnedHistory', JSON.stringify(learnedHistory)); localStorage.setItem('vFailTracker', JSON.stringify(failTracker));
+            localStorage.setItem('vSurvivalHighscore', survivalHighscore); localStorage.setItem('vLeitnerBoxes', JSON.stringify(leitnerBoxes));
+            localStorage.setItem('vApples', appleCount);
+        }
+        function updateName(v) { userName = v; save(); renderHome(); }
+        function updateBoardColor(c) { boardCol = c; save(); renderHome(); }
+        function updateTheme(themeName) { activeTheme = themeName; document.documentElement.setAttribute('data-theme', themeName); save(); }
+
+        function showScreen(id) {
+            clearInterval(memoryTimerInterval); clearInterval(survivalTimer); clearTimeout(autopilotTimeout);
+            stopQRScanner(); window.speechSynthesis.cancel();
+            if(isVoiceRecording && speechRecognitionEngine) { speechRecognitionEngine.stop(); }
+            document.querySelectorAll('body > div').forEach(div => div.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            if(id === 'screen-home') renderHome();
+            if(id === 'screen-settings') { renderShop(); updateStatsDisplay(); }
+        }
+
+        renderHome();
+    </script>
+</body>
+</html>
