@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Chewy&family=Fredoka:wght@600&family=Lobster&family=Pacifico&family=Titan+One&display=swap" rel="stylesheet">
 <title>Die Maus-Uhr</title>
 <style>
 :root{--bg:#fff7d6;--dial:#ffffff;--ink:#1d1d2b;--accent:#e63946;--blue:#1d4ed8;--face:#ffd9a8;--box:#ffffff;
@@ -11,13 +12,30 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14142b;--dial:#262650;--ink:#f5f5ff;--accent:#ff6b78;--blue:#7aa2ff;--face:#ffd9a8;--box:#262650}}
 :root[data-theme="dark"]{--bg:#14142b;--dial:#262650;--ink:#f5f5ff;--accent:#ff6b78;--blue:#7aa2ff;--face:#ffd9a8;--box:#262650}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:#c2185b;color:#fff;font-family:"Comic Sans MS","Chalkboard SE","Trebuchet MS",sans-serif;
+body{margin:0;background:var(--bg,#c2185b);color:#fff;font-family:"Comic Sans MS","Chalkboard SE","Trebuchet MS",sans-serif;
 display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px;min-height:100vh}
 svg{width:min(94vw,540px);height:auto;--ink:#1d1d2b;--dial:#fff}
-.digital{background:#fff;color:#111;border:6px solid #111;border-radius:28px;padding:6px 28px;
+.digital{background:var(--digbg,#fff);color:var(--dig,#111);border:6px solid var(--dig,#111);font-family:var(--font,'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif);border-radius:28px;padding:6px 28px;
 font-size:clamp(64px,18vw,130px);font-weight:900;letter-spacing:4px;line-height:1.1}
-.digital small{font-size:.4em;color:#111}
-.lang{display:flex;gap:10px}
+.digital small{font-size:.4em;color:inherit}
+.lang{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.panel{background:#fff;color:#222;border-radius:24px;padding:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;width:min(94vw,540px);box-sizing:border-box;font-family:system-ui,sans-serif}
+.panel[hidden]{display:none}
+.row{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700}
+.row input[type=color]{width:56px;height:44px;border:3px solid #bbb;border-radius:12px;padding:0;background:none;cursor:pointer}
+.row select{font-size:18px;padding:8px;border-radius:12px;border:3px solid #bbb;max-width:170px}
+.rst{font:inherit;font-size:18px;font-weight:700;padding:8px 16px;border-radius:12px;border:3px solid #6d28d9;background:#fff;color:#6d28d9;cursor:pointer}
+#hh{fill:var(--hh,#ffb3d9)}
+#mm{fill:var(--mm,#c2185b)}
+#ss{stroke:var(--ss,#8b5cf6);fill:var(--ss,#8b5cf6)}
+#nums{stroke:var(--num,#6d28d9)}
+#nums [fill="#6d28d9"]{fill:var(--num,#6d28d9)}
+svg path[stroke-width="40"]{stroke:var(--rim,#6d28d9)}
+svg ellipse[fill="url(#sg)"]{fill:var(--eye,url(#sg))}
+svg circle[r="24"][fill="#e63946"]{fill:var(--nose,#e63946)}
+svg path[fill="#e63946"]{fill:var(--mouth,#e63946)}
+svg circle[fill="#ff9aa2"]{fill:var(--cheek,#ff9aa2)}
+svg > text{fill:var(--txt,#ffc2e0);font-family:var(--font,'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif)}
 .lang button{font:inherit;font-size:clamp(20px,5vw,30px);font-weight:800;padding:8px 22px;border-radius:999px;border:4px solid #6d28d9;background:#fff;color:#6d28d9;cursor:pointer}
 .lang button.on{background:#6d28d9;color:#fff}
 </style>
@@ -40,7 +58,8 @@ font-size:clamp(64px,18vw,130px);font-weight:900;letter-spacing:4px;line-height:
   <g id="ss" stroke="#8b5cf6" fill="#8b5cf6"><line x1="200" y1="232" x2="200" y2="40" stroke-width="2.5" stroke-linecap="round"/><circle cx="200" cy="224" r="5" stroke="none"/><circle cx="200" cy="72" r="6" fill="none" stroke-width="2"/><polygon points="200,36 204,50 196,50" stroke="none"/></g><circle cx="200" cy="200" r="9" fill="#1d1d2b"/><circle cx="200" cy="200" r="3.5" fill="#8b5cf6"/>
 </svg>
 <div class="digital"><span id="dig">00:00</span> <small id="sec">00</small></div>
-<div class="lang"><button id="bIt" type="button">Italiano</button><button id="bDe" type="button">Deutsch</button></div>
+<div class="lang"><button id="bIt" type="button">Italiano</button><button id="bDe" type="button">Deutsch</button><button id="bSet" type="button"></button></div>
+<div id="panel" class="panel" hidden></div>
 
 <script>
 var nums=document.getElementById('nums');
@@ -49,9 +68,24 @@ var GL={'0':'<ellipse cx="12" cy="20" rx="8.5" ry="16" fill="'+V+'"/>','1':'<pat
 for(var i=1;i<=12;i++){var a=i*30*Math.PI/180,t=document.createElementNS('http://www.w3.org/2000/svg','g');
 var s=''+i,W=s.length*26-2,cx=200+Math.sin(a)*135,cy=200-Math.cos(a)*135,h='';for(var k=0;k<s.length;k++)h+='<g transform="translate('+(k*26)+' 0)">'+GL[s[k]]+'</g>';t.setAttribute('transform','translate('+cx+' '+cy+') scale(.8) translate('+(-W/2)+' -20)');t.innerHTML=h;nums.appendChild(t);}
 var L={it:{tage:['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'],mon:['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'],t1:'Orologio di',t2:'Lucia Mauro',fmt:function(d,m,y){return d+' '+m+' '+y}},de:{tage:['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'],mon:['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],t1:'Uhr von',t2:'Lucia Mauro',fmt:function(d,m,y){return d+'. '+m+' '+y}}};var lang='it';
-function setLang(l){lang=l;var Lg=L[l];document.getElementById('t1').textContent=Lg.t1;document.getElementById('t2').textContent=Lg.t2;document.documentElement.lang=l;document.getElementById('bIt').className=l=='it'?'on':'';document.getElementById('bDe').className=l=='de'?'on':'';try{localStorage.setItem('lang',l)}catch(e){}}
+function setLang(l){lang=l;var Lg=L[l];document.getElementById('t1').textContent=Lg.t1;document.getElementById('t2').textContent=Lg.t2;document.documentElement.lang=l;document.getElementById('bIt').className=l=='it'?'on':'';document.getElementById('bDe').className=l=='de'?'on':'';try{localStorage.setItem('lang',l)}catch(e){}if(window.uiLabels)uiLabels();}
 document.getElementById('bIt').onclick=function(){setLang('it')};
 document.getElementById('bDe').onclick=function(){setLang('de')};
+var ITEMS=[['bg','Hintergrund','Sfondo','#c2185b'],['rim','Herzrand','Bordo del cuore','#6d28d9'],['hc','Herz Mitte','Centro del cuore','#ffffff'],['he','Herz aussen','Esterno del cuore','#ffb8da'],['num','Zahlen','Numeri','#6d28d9'],['hh','Stundenzeiger','Lancetta delle ore','#ffb3d9'],['mm','Minutenzeiger','Lancetta dei minuti','#c2185b'],['ss','Sekundenzeiger','Lancetta dei secondi','#8b5cf6'],['eye','Augen','Occhi','#c9d0d8'],['nose','Nase','Naso','#e63946'],['mouth','Mund','Bocca','#e63946'],['cheek','Wangen','Guance','#ff9aa2'],['txt','Beschriftung','Scritta','#ffc2e0'],['dig','Digitalzahlen','Numeri digitali','#111111'],['digbg','Digital-Hintergrund','Sfondo digitale','#ffffff']];
+var FONTS=[['Comic (Standard)',"'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif"],['Fredoka',"'Fredoka','Trebuchet MS',sans-serif"],['Baloo 2',"'Baloo 2','Trebuchet MS',sans-serif"],['Chewy',"'Chewy','Comic Sans MS',sans-serif"],['Titan One',"'Titan One','Arial Black',sans-serif"],['Lobster',"'Lobster',Georgia,serif"],['Pacifico',"'Pacifico','Brush Script MT',cursive"],['Trebuchet',"'Trebuchet MS',Arial,sans-serif"],['Georgia',"Georgia,'Times New Roman',serif"],['Courier',"'Courier New',monospace"]];
+var saved={};try{saved=JSON.parse(localStorage.getItem('mausuhr')||'{}')}catch(e){}
+function save(){try{localStorage.setItem('mausuhr',JSON.stringify(saved))}catch(e){}}
+var RT=document.documentElement.style;
+function applyC(id,v){var st=document.querySelectorAll('#hg stop');if(id=='hc'){st[0].setAttribute('stop-color',v);st[1].setAttribute('stop-color',v)}else if(id=='he'){st[2].setAttribute('stop-color',v)}else RT.setProperty('--'+id,v)}
+var panel=document.getElementById('panel'),bs=document.getElementById('bSet'),rows=[];
+ITEMS.forEach(function(it){var lab=document.createElement('label');lab.className='row';var inp=document.createElement('input');inp.type='color';inp.value=saved[it[0]]||it[3];var sp=document.createElement('span');lab.appendChild(inp);lab.appendChild(sp);panel.appendChild(lab);rows.push(sp);it.push(inp);if(saved[it[0]])applyC(it[0],saved[it[0]]);inp.addEventListener('input',function(){saved[it[0]]=inp.value;applyC(it[0],inp.value);save()})});
+var fl=document.createElement('label');fl.className='row';var fs=document.createElement('select');FONTS.forEach(function(f){var o=document.createElement('option');o.value=f[1];o.textContent=f[0];fs.appendChild(o)});var fsp=document.createElement('span');fl.appendChild(fs);fl.appendChild(fsp);panel.appendChild(fl);
+if(saved.font){fs.value=saved.font;RT.setProperty('--font',saved.font)}
+fs.addEventListener('change',function(){saved.font=fs.value;RT.setProperty('--font',fs.value);save()});
+var rb=document.createElement('button');rb.type='button';rb.className='rst';panel.appendChild(rb);
+rb.onclick=function(){saved={};save();ITEMS.forEach(function(it){it[4].value=it[3];if(it[0]=='hc'||it[0]=='he'){applyC(it[0],it[3])}else RT.removeProperty('--'+it[0])});RT.removeProperty('--font');fs.selectedIndex=0};
+bs.onclick=function(){panel.hidden=!panel.hidden};
+window.uiLabels=function(){var j=lang=='de'?1:2;ITEMS.forEach(function(it,i){rows[i].textContent=it[j]});fsp.textContent=lang=='de'?'Schriftart':'Carattere';rb.textContent=lang=='de'?'Zurücksetzen':'Ripristina';bs.textContent=lang=='de'?'🎨 Farben':'🎨 Colori'};
 var init='it';try{init=localStorage.getItem('lang')||'it'}catch(e){}
 setLang(init=='de'?'de':'it');
 function p(n){return n<10?'0'+n:''+n}
