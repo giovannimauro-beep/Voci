@@ -12,14 +12,16 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14142b;--dial:#262650;--ink:#f5f5ff;--accent:#ff6b78;--blue:#7aa2ff;--face:#ffd9a8;--box:#262650}}
 :root[data-theme="dark"]{--bg:#14142b;--dial:#262650;--ink:#f5f5ff;--accent:#ff6b78;--blue:#7aa2ff;--face:#ffd9a8;--box:#262650}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.28),rgba(0,0,0,.3) 90%) var(--bg,#c2185b);color:#fff;font-family:"Comic Sans MS","Chalkboard SE","Trebuchet MS",sans-serif;
+body{margin:0;background:radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.28),rgba(0,0,0,.3) 90%) var(--bgc,#c2185b);color:#fff;font-family:"Comic Sans MS","Chalkboard SE","Trebuchet MS",sans-serif;
 display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px;min-height:100vh}
 svg{width:min(98vw,810px);height:auto;--ink:#1d1d2b;--dial:#fff}
 .digital{background:var(--digbg,#fff);color:var(--dig,#111);border:4px solid var(--dig,#111);font-family:var(--font,'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif);border-radius:20px;padding:4px 20px;
 font-size:clamp(45px,12.6vw,91px);font-weight:900;letter-spacing:3px;box-shadow:0 8px 18px rgba(0,0,0,.45),inset 0 2px 4px rgba(255,255,255,.85),inset 0 -4px 8px rgba(0,0,0,.22);line-height:1.1}
 .digital small{font-size:.4em;color:inherit}
 .lang{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-.panel{background:#fff;color:#222;border-radius:24px;padding:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;width:min(94vw,540px);box-sizing:border-box;font-family:system-ui,sans-serif}
+.panel{position:fixed;right:10px;top:10px;bottom:10px;z-index:20;width:min(92vw,340px);overflow:auto;background:#fff;color:#222;border-radius:24px;padding:14px;display:flex;flex-direction:column;gap:10px;box-sizing:border-box;font-family:system-ui,sans-serif;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.panel .x{position:sticky;top:0;align-self:flex-end;flex:none}
+@media (max-width:600px){.panel{left:8px;right:8px;top:auto;bottom:8px;max-height:52vh;width:auto}}
 .panel[hidden]{display:none}
 .row{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700}
 .row input[type=color]{width:56px;height:44px;border:3px solid #bbb;border-radius:12px;padding:0;background:none;cursor:pointer}
@@ -32,14 +34,14 @@ font-size:clamp(45px,12.6vw,91px);font-weight:900;letter-spacing:3px;box-shadow:
 #petals circle{fill:var(--petal,#ffd60a);stroke:#ff8a00;stroke-width:5}
 .row input[type=range]{width:150px}
 #petals circle.ov{fill:url(#pet);stroke:none}
-.row input[type=checkbox]{width:44px;height:44px;accent-color:#111;cursor:pointer}
+.row input[type=checkbox]{width:30px;height:30px;accent-color:#111;cursor:pointer}
 .row input[type=text]{font-size:18px;padding:8px;border:3px solid #bbb;border-radius:12px;width:170px;box-sizing:border-box}
 svg path[stroke-width="40"]{stroke:var(--rim,#6d28d9)}
 svg ellipse[fill="url(#sg)"]{fill:var(--eye,url(#sg))}
 svg circle[r="24"][fill="#e63946"]{fill:var(--nose,#e63946)}
 svg path[fill="#e63946"]{fill:var(--mouth,#e63946)}
 svg circle[fill="#ff9aa2"]{fill:var(--cheek,#ff9aa2)}
-svg > text{fill:var(--txt,#ffc2e0);font-family:var(--font,'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif)}
+svg > text{fill:var(--txt,#ffc2e0);stroke:rgba(25,0,45,.7);stroke-width:4px;paint-order:stroke;stroke-linejoin:round;font-family:var(--font,'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif)}
 .lang button{font:inherit;font-size:clamp(15px,3.6vw,21px);font-weight:800;padding:5px 14px;border-radius:999px;border:3px solid #111;background:#fff;color:#111;cursor:pointer}
 .lang button.on{background:#111;color:#fff}
 </style>
@@ -53,11 +55,11 @@ svg > text{fill:var(--txt,#ffc2e0);font-family:var(--font,'Comic Sans MS','Chalk
 <filter id="ns" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="1" dy="2.2" stdDeviation="1.3" flood-color="#000" flood-opacity=".4"/></filter>
 <filter id="bl" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="7"/></filter>
 <clipPath id="inClip"><path class="sp"/></clipPath>
-<linearGradient id="bev" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset=".3" stop-color="#fff" stop-opacity=".12"/><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset=".8" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity=".6"/></linearGradient>
+<linearGradient id="bev" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".3" stop-color="#fff" stop-opacity=".1"/><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset=".8" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></linearGradient>
 <radialGradient id="lit" cx=".33" cy=".25" r=".85"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".3"/></radialGradient>
 <linearGradient id="hsh" gradientUnits="userSpaceOnUse" x1="186" y1="0" x2="214" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset=".45" stop-color="#fff" stop-opacity=".05"/><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></linearGradient>
 <radialGradient id="capg" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#9aa3ad"/><stop offset="1" stop-color="#222"/></radialGradient>
-<linearGradient id="glass" gradientUnits="userSpaceOnUse" x1="0" y1="-100" x2="0" y2="240"><stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset="1" stop-color="#fff" stop-opacity=".03"/></linearGradient>
+<linearGradient id="glass" gradientUnits="userSpaceOnUse" x1="0" y1="-100" x2="0" y2="190"><stop offset="0" stop-color="#fff" stop-opacity=".36"/><stop offset=".55" stop-color="#fff" stop-opacity=".1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
 <radialGradient id="pet" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></radialGradient>
 </defs>
 <g id="petals" filter="url(#ds)"></g><defs><radialGradient id="hg" gradientUnits="userSpaceOnUse" cx="200" cy="200" r="250"><stop offset="0" stop-color="#ffffff"/><stop offset=".15" stop-color="#ffffff"/><stop offset="1" stop-color="#ffb8da"/></radialGradient><radialGradient id="sg" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#a9b1bc"/></radialGradient><path id="tl" d="M-58.5 130 C-68 60 -47.5 -25 35 -45 C79.7 -54.75 130.1 -54 163.7 -35.8"/><path id="tr" d="M236.3 -35.8 C269.9 -54 320.3 -54.75 365 -45 C447.5 -25 468 60 458.5 130"/><path id="dl" d="M-58.5 130 C-54.4 240 90 340 200 460"/><path id="dr" d="M200 460 C310 340 454 240 458.5 130"/></defs><path d="M200 10 C186.25 -50 103.75 -60 35 -45 C-47.5 -25 -68 60 -58.5 130 C-54.4 240 90 340 200 460 C310 340 454 240 458.5 130 C468 60 447.5 -25 365 -45 C296.25 -60 213.75 -50 200 10 Z" id="shape" filter="url(#ds)" fill="url(#hg)" stroke="#6d28d9" stroke-width="40" stroke-linejoin="round"/><path class="sp" fill="url(#lit)" stroke="none"/><g clip-path="url(#inClip)"><path class="sp" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="56" filter="url(#bl)"/></g><path class="sp" fill="none" stroke="url(#bev)" stroke-width="40.5" stroke-linejoin="round"/><text font-family="'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif" font-size="32" font-weight="900" fill="#ffc2e0" letter-spacing="1" text-anchor="end"><textPath href="#tl" startOffset="100%"><tspan dy="10" id="t1">Orologio di</tspan></textPath></text><text font-family="'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif" font-size="32" font-weight="900" fill="#ffc2e0" letter-spacing="1"><textPath href="#tr" startOffset="0%"><tspan dy="10" id="t2">Lucia Mauro</tspan></textPath></text><text font-family="'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif" font-size="30" font-weight="900" fill="#ffc2e0" letter-spacing="1" text-anchor="middle"><textPath href="#dl" startOffset="50%"><tspan dy="10" id="dl1"></tspan></textPath></text><text font-family="'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif" font-size="30" font-weight="900" fill="#ffc2e0" letter-spacing="1" text-anchor="middle"><textPath href="#dr" startOffset="50%"><tspan dy="10" id="dr1"></tspan></textPath></text>
@@ -72,7 +74,7 @@ svg > text{fill:var(--txt,#ffc2e0);font-family:var(--font,'Comic Sans MS','Chalk
   
   <g filter="url(#hs)"><g id="hh" fill="#ffb3d9" stroke="#1d1d2b" stroke-width="3" stroke-linejoin="round"><path d="M200 232 Q191 220 196 206 L204 206 Q209 220 200 232 Z"/><polygon points="191,208 197,172 197,140 203,140 203,172 209,208"/><polygon points="200,146 206,156 200,166 194,156"/><path d="M200 86 Q213 104 209 120 L191 120 Q187 104 200 86 Z"/><path fill-rule="evenodd" d="M188 130 a12 12 0 1 0 24 0 a12 12 0 1 0 -24 0 Z M194 130 a6 6 0 1 0 12 0 a6 6 0 1 0 -12 0 Z"/></g>
   <g id="mm" fill="#c2185b" stroke="#1d1d2b" stroke-width="3" stroke-linejoin="round"><path d="M200 238 Q191 222 196 207 L204 207 Q209 222 200 238 Z"/><polygon points="192,208 197,172 197,115 203,115 203,172 208,208"/><polygon points="200,132 207,145 200,158 193,145"/><path d="M200 34 Q212 62 208 96 L192 96 Q188 62 200 34 Z"/><path fill-rule="evenodd" d="M190 106 a10 10 0 1 0 20 0 a10 10 0 1 0 -20 0 Z M195 106 a5 5 0 1 0 10 0 a5 5 0 1 0 -10 0 Z"/></g>
-  <g id="ss" stroke="#8b5cf6" fill="#8b5cf6"><line x1="200" y1="232" x2="200" y2="40" stroke-width="2.5" stroke-linecap="round"/><circle cx="200" cy="224" r="5" stroke="none"/><circle cx="200" cy="72" r="6" fill="none" stroke-width="2"/><polygon points="200,36 204,50 196,50" stroke="none"/></g><circle cx="200" cy="200" r="9" fill="url(#capg)" stroke="#111" stroke-width="1.5"/><circle cx="200" cy="200" r="3.5" fill="#111"/></g><g clip-path="url(#inClip)" pointer-events="none"><path d="M-120 -120 H520 V150 Q200 250 -120 150 Z" fill="url(#glass)"/></g>
+  <g id="ss" stroke="#8b5cf6" fill="#8b5cf6"><line x1="200" y1="232" x2="200" y2="40" stroke-width="2.5" stroke-linecap="round"/><circle cx="200" cy="224" r="5" stroke="none"/><circle cx="200" cy="72" r="6" fill="none" stroke-width="2"/><polygon points="200,36 204,50 196,50" stroke="none"/></g><circle cx="200" cy="200" r="9" fill="url(#capg)" stroke="#111" stroke-width="1.5"/><circle cx="200" cy="200" r="3.5" fill="#111"/></g><g clip-path="url(#inClip)" pointer-events="none"><path d="M-120 -120 H520 V210 Q200 310 -120 210 Z" fill="url(#glass)"/></g>
 </svg>
 <div class="digital"><span id="dig">00:00</span> <small id="sec">00</small></div>
 <div class="lang"><button id="bIt" type="button">Italiano</button><button id="bDe" type="button">Deutsch</button><button id="bSet" type="button"></button></div>
@@ -86,7 +88,7 @@ var L={it:{tage:['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerd
 function setLang(l){lang=l;var Lg=L[l];document.getElementById('t1').textContent=Lg.t1;document.getElementById('t2').textContent=window.NAME||Lg.t2;document.documentElement.lang=l;document.getElementById('bIt').className=l=='it'?'on':'';document.getElementById('bDe').className=l=='de'?'on':'';try{localStorage.setItem('lang',l)}catch(e){}if(window.uiLabels)uiLabels();}
 document.getElementById('bIt').onclick=function(){setLang('it')};
 document.getElementById('bDe').onclick=function(){setLang('de')};
-var ITEMS=[['bg','Hintergrund','Sfondo','#c2185b'],['rim','Herzrand','Bordo del cuore','#6d28d9'],['hc','Herz Mitte','Centro del cuore','#ffffff'],['he','Herz aussen','Esterno del cuore','#ffb8da'],['num','Zahlen','Numeri','#6d28d9'],['hh','Stundenzeiger','Lancetta delle ore','#ffb3d9'],['mm','Minutenzeiger','Lancetta dei minuti','#c2185b'],['ss','Sekundenzeiger','Lancetta dei secondi','#8b5cf6'],['eye','Augen','Occhi','#c9d0d8'],['nose','Nase','Naso','#e63946'],['mouth','Mund','Bocca','#e63946'],['cheek','Wangen','Guance','#ff9aa2'],['txt','Beschriftung','Scritta','#ffc2e0'],['dig','Digitalzahlen','Numeri digitali','#111111'],['digbg','Digital-Hintergrund','Sfondo digitale','#ffffff'],['petal','Bl\u00fctenbl\u00e4tter','Petali','#ffd60a']];
+var ITEMS=[['bgc','Hintergrund','Sfondo','#c2185b'],['rim','Herzrand','Bordo del cuore','#6d28d9'],['hc','Herz Mitte','Centro del cuore','#ffffff'],['he','Herz aussen','Esterno del cuore','#ffb8da'],['num','Zahlen','Numeri','#6d28d9'],['hh','Stundenzeiger','Lancetta delle ore','#ffb3d9'],['mm','Minutenzeiger','Lancetta dei minuti','#c2185b'],['ss','Sekundenzeiger','Lancetta dei secondi','#8b5cf6'],['eye','Augen','Occhi','#c9d0d8'],['nose','Nase','Naso','#e63946'],['mouth','Mund','Bocca','#e63946'],['cheek','Wangen','Guance','#ff9aa2'],['txt','Beschriftung','Scritta','#ffc2e0'],['dig','Digitalzahlen','Numeri digitali','#111111'],['digbg','Digital-Hintergrund','Sfondo digitale','#ffffff'],['petal','Bl\u00fctenbl\u00e4tter','Petali','#ffd60a']];
 var FONTS=[['Comic (Standard)',"'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif"],['Fredoka',"'Fredoka','Trebuchet MS',sans-serif"],['Baloo 2',"'Baloo 2','Trebuchet MS',sans-serif"],['Chewy',"'Chewy','Comic Sans MS',sans-serif"],['Titan One',"'Titan One','Arial Black',sans-serif"],['Lobster',"'Lobster',Georgia,serif"],['Pacifico',"'Pacifico','Brush Script MT',cursive"],['Trebuchet',"'Trebuchet MS',Arial,sans-serif"],['Georgia',"Georgia,'Times New Roman',serif"],['Courier',"'Courier New',monospace"]];
 var saved={};try{saved=JSON.parse(localStorage.getItem('mausuhr')||'{}')}catch(e){}
 function save(){try{localStorage.setItem('mausuhr',JSON.stringify(saved))}catch(e){}}
@@ -107,11 +109,11 @@ function P(r,t){t=t*Math.PI/180;return (200+r*Math.sin(t)).toFixed(1)+' '+(200-r
 function arcP(r,a,b){return 'M'+P(r,a)+' A'+r+' '+r+' 0 0 '+(b>a?1:0)+' '+P(r,b)}
 var CIR='M0 200 A200 200 0 1 1 400 200 A200 200 0 1 1 0 200 Z';
 var CP={tl:arcP(200,-85,-6),tr:arcP(200,6,85),dl:arcP(200,270,185),dr:arcP(200,175,90)};
-var SHAPES={heart:{d:HD,p:HP,R:135,gr:250},circle:{d:CIR,p:CP,R:150,gr:200},square:{d:'M30 -10 H370 Q410 -10 410 30 V370 Q410 410 370 410 H30 Q-10 410 -10 370 V30 Q-10 -10 30 -10 Z',p:{tl:'M30 -10 L195 -10',tr:'M205 -10 L370 -10',dl:'M30 410 L170 410',dr:'M180 410 L370 410'},R:165,gr:260},flower:{d:CIR,p:CP,R:150,gr:200,petals:1}};
+var SHAPES={heart:{d:HD,p:HP,R:135,Rx:152,gr:250,vb:'-90 -90 580 620'},circle:{d:CIR,p:CP,R:150,gr:200,vb:'-45 -45 490 530'},square:{d:'M30 -10 H370 Q410 -10 410 30 V370 Q410 410 370 410 H30 Q-10 410 -10 370 V30 Q-10 -10 30 -10 Z',p:{tl:'M30 -10 L195 -10',tr:'M205 -10 L370 -10',dl:'M30 410 L170 410',dr:'M180 410 L370 410'},R:165,gr:260,vb:'-55 -55 510 540'},flower:{d:CIR,p:CP,R:150,gr:200,petals:1,vb:'-85 -85 570 600'}};
 var TS=[32,32,30,30];
-function placeNums(R){NUMT.forEach(function(tx,i){var a=(i+1)*30*Math.PI/180;tx.setAttribute('x',200+Math.sin(a)*R);tx.setAttribute('y',200-Math.cos(a)*R)})}
-function fitText(){try{var ts=document.querySelectorAll('svg > text');for(var i=0;i<ts.length&&i<4;i++){var t=ts[i];t.setAttribute('font-size',TS[i]);var L=t.getComputedTextLength(),M=TP[TK[i]].getTotalLength()*0.96;if(L>M)t.setAttribute('font-size',Math.max(12,Math.floor(TS[i]*M/L)))}}catch(e){}}
-function applyShape(n){var s=SHAPES[n]||SHAPES.heart;document.getElementById('shape').setAttribute('d',s.d);document.querySelectorAll('.sp').forEach(function(e){e.setAttribute('d',s.d)});TK.forEach(function(k){TP[k].setAttribute('d',s.p[k])});placeNums(s.R);document.getElementById('hg').setAttribute('r',s.gr);var pg=document.getElementById('petals');pg.innerHTML='';if(s.petals){for(var j=0;j<12;j++){var a=j*30*Math.PI/180,c=document.createElementNS(NS,'circle');c.setAttribute('cx',200+Math.sin(a)*228);c.setAttribute('cy',200-Math.cos(a)*228);c.setAttribute('r',40);pg.appendChild(c);var o=document.createElementNS(NS,'circle');o.setAttribute('class','ov');o.setAttribute('cx',c.getAttribute('cx'));o.setAttribute('cy',c.getAttribute('cy'));o.setAttribute('r',40);pg.appendChild(o)}}fitText()}
+function placeNums(R,Ry){Ry=Ry||R;NUMT.forEach(function(tx,i){var a=(i+1)*30*Math.PI/180;tx.setAttribute('x',200+Math.sin(a)*R);tx.setAttribute('y',200-Math.cos(a)*Ry)})}
+function fitText(){try{var ts=document.querySelectorAll('svg > text'),z=[];for(var i=0;i<4;i++){var t=ts[i];t.setAttribute('font-size',TS[i]);var L=t.getComputedTextLength(),M=TP[TK[i]].getTotalLength()*0.96;z[i]=L>M?Math.max(12,Math.floor(TS[i]*M/L)):TS[i]}var a=Math.min(z[0],z[1]),c=Math.min(z[2],z[3]);ts[0].setAttribute('font-size',a);ts[1].setAttribute('font-size',a);ts[2].setAttribute('font-size',c);ts[3].setAttribute('font-size',c)}catch(e){}}
+function applyShape(n){var s=SHAPES[n]||SHAPES.heart;document.getElementById('shape').setAttribute('d',s.d);document.querySelectorAll('.sp').forEach(function(e){e.setAttribute('d',s.d)});TK.forEach(function(k){TP[k].setAttribute('d',s.p[k])});placeNums(s.Rx||s.R,s.R);document.querySelector('svg').setAttribute('viewBox',s.vb);document.getElementById('hg').setAttribute('r',s.gr);var pg=document.getElementById('petals');pg.innerHTML='';if(s.petals){for(var j=0;j<12;j++){var a=j*30*Math.PI/180,c=document.createElementNS(NS,'circle');c.setAttribute('cx',200+Math.sin(a)*228);c.setAttribute('cy',200-Math.cos(a)*228);c.setAttribute('r',40);pg.appendChild(c);var o=document.createElementNS(NS,'circle');o.setAttribute('class','ov');o.setAttribute('cx',c.getAttribute('cx'));o.setAttribute('cy',c.getAttribute('cy'));o.setAttribute('r',40);pg.appendChild(o)}}fitText()}
 function mkRow(ctrl){var lab=document.createElement('label');lab.className='row';var sp=document.createElement('span');lab.appendChild(ctrl);lab.appendChild(sp);panel.insertBefore(lab,fl);return sp}
 var SHN=[['heart','Herz','Cuore'],['circle','Kreis','Cerchio'],['square','Quadrat','Quadrato'],['flower','Blume','Fiore']];
 var ssel=document.createElement('select');SHN.forEach(function(x){var o=document.createElement('option');o.value=x[0];ssel.appendChild(o)});
@@ -141,8 +143,9 @@ rb.addEventListener('click',function(){fcb.checked=true;showFace()});
 var SHW={heart:['Herz','Herzrand','cuore'],circle:['Kreis','Kreisrand','cerchio'],square:['Quadrat','Quadratrand','quadrato'],flower:['Blume','Blumenrand','fiore']};
 var _ui2=window.uiLabels;window.uiLabels=function(){_ui2();var de=lang=='de',w=SHW[ssel.value]||SHW.heart;sp4.textContent=de?'Gesicht anzeigen':'Mostra il viso';rows[1].textContent=de?w[1]:'Bordo del '+w[2];rows[2].textContent=de?w[0]+' Mitte':'Centro del '+w[2];rows[3].textContent=de?w[0]+' aussen':'Esterno del '+w[2]};
 rb.addEventListener('click',function(){uiLabels()});
+var cbtn=document.createElement('button');cbtn.type='button';cbtn.className='rst x';cbtn.textContent='\u2715';cbtn.onclick=function(){panel.hidden=true};
 var nmi=document.createElement('input');nmi.type='text';nmi.maxLength=24;nmi.value=saved.name||'Lucia Mauro';window.NAME=saved.name||'';
-var nml=document.createElement('label');nml.className='row';var sp5=document.createElement('span');nml.appendChild(nmi);nml.appendChild(sp5);panel.insertBefore(nml,panel.firstChild);
+var nml=document.createElement('label');nml.className='row';var sp5=document.createElement('span');nml.appendChild(nmi);nml.appendChild(sp5);panel.insertBefore(nml,panel.firstChild);panel.insertBefore(cbtn,panel.firstChild);
 function setName(){var v=nmi.value.trim();window.NAME=v;document.getElementById('t2').textContent=v||L[lang].t2;fitText()}
 nmi.oninput=function(){saved.name=nmi.value.trim();save();setName()};
 rb.addEventListener('click',function(){nmi.value='Lucia Mauro';window.NAME='';setName()});
@@ -162,7 +165,21 @@ function tick(){
   var dk=lang+d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();
   if(dk!==window._dk){window._dk=dk;var Lg=L[lang];document.getElementById('dl1').textContent=Lg.tage[d.getDay()];document.getElementById('dr1').textContent=Lg.fmt(d.getDate(),Lg.mon[d.getMonth()],d.getFullYear());fitText();}
 }
-tick();setInterval(tick,50);
+var smooth=saved.smooth!==false,lastS=-1;
+function loop(){var d=new Date();if(smooth||d.getSeconds()!==lastS){lastS=d.getSeconds();tick()}requestAnimationFrame(loop)}
+tick();requestAnimationFrame(loop);
+var wl=null,keep=saved.keep!==false;
+function wake(){try{if(keep&&navigator.wakeLock&&document.visibilityState=='visible'){navigator.wakeLock.request('screen').then(function(l){wl=l}).catch(function(){})}else if(!keep&&wl){wl.release();wl=null}}catch(e){}}
+document.addEventListener('visibilitychange',wake);document.addEventListener('click',wake,{once:true});wake();
+var smb=document.createElement('input');smb.type='checkbox';smb.checked=smooth;var sp6=mkRow(smb);
+smb.onchange=function(){smooth=smb.checked;saved.smooth=smooth;save();if(!smooth)tick()};
+var kpb=document.createElement('input');kpb.type='checkbox';kpb.checked=keep;var sp7=mkRow(kpb);
+kpb.onchange=function(){keep=kpb.checked;saved.keep=keep;save();wake()};
+rb.addEventListener('click',function(){smb.checked=true;smooth=true;kpb.checked=true;keep=true;wake()});
+var _ui4=window.uiLabels;window.uiLabels=function(){_ui4();var de=lang=='de';sp6.textContent=de?'Sekundenzeiger gleitend':'Lancetta dei secondi fluida';sp7.textContent=de?'Bildschirm anlassen':'Schermo sempre acceso'};
+function ord(el,n){el.parentNode.style.order=n}
+cbtn.style.order=-4;ord(sp5,-3);ord(sp1,-2);ord(sp4,-1);ord(sp6,-1);ord(sp7,-1);ord(sp2,1);ord(sp3,1);fl.style.order=1;rb.style.order=2;
+uiLabels();
 </script>
 </body>
 </html>
