@@ -28,8 +28,11 @@ font-size:clamp(64px,18vw,130px);font-weight:900;letter-spacing:4px;line-height:
 #hh{fill:var(--hh,#ffb3d9)}
 #mm{fill:var(--mm,#c2185b)}
 #ss{stroke:var(--ss,#8b5cf6);fill:var(--ss,#8b5cf6)}
-#nums{stroke:var(--num,#6d28d9)}
-#nums [fill="#6d28d9"]{fill:var(--num,#6d28d9)}
+#nums{fill:var(--num,#6d28d9);stroke:none;font-family:var(--nfont,'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif);font-size:var(--nsize,42px);font-weight:900;text-anchor:middle}
+#petals circle{fill:var(--petal,#ffd60a);stroke:#ff8a00;stroke-width:5}
+.row input[type=range]{width:150px}
+.row input[type=checkbox]{width:44px;height:44px;accent-color:#6d28d9;cursor:pointer}
+.row input[type=text]{font-size:18px;padding:8px;border:3px solid #bbb;border-radius:12px;width:170px;box-sizing:border-box}
 svg path[stroke-width="40"]{stroke:var(--rim,#6d28d9)}
 svg ellipse[fill="url(#sg)"]{fill:var(--eye,url(#sg))}
 svg circle[r="24"][fill="#e63946"]{fill:var(--nose,#e63946)}
@@ -43,11 +46,11 @@ svg > text{fill:var(--txt,#ffc2e0);font-family:var(--font,'Comic Sans MS','Chalk
 <body>
 <svg viewBox="-90 -90 580 580" role="img" aria-label="Orologio di Lucia Mauro">
   
-  <defs><radialGradient id="hg" gradientUnits="userSpaceOnUse" cx="200" cy="200" r="250"><stop offset="0" stop-color="#ffffff"/><stop offset=".15" stop-color="#ffffff"/><stop offset="1" stop-color="#ffb8da"/></radialGradient><radialGradient id="sg" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#a9b1bc"/></radialGradient><path id="tl" d="M-58.5 130 C-68 60 -47.5 -25 35 -45 C79.7 -54.75 130.1 -54 163.7 -35.8"/><path id="tr" d="M236.3 -35.8 C269.9 -54 320.3 -54.75 365 -45 C447.5 -25 468 60 458.5 130"/><path id="dl" d="M-58.5 130 C-54.4 240 90 340 200 460"/><path id="dr" d="M200 460 C310 340 454 240 458.5 130"/></defs><path d="M200 10 C186.25 -50 103.75 -60 35 -45 C-47.5 -25 -68 60 -58.5 130 C-54.4 240 90 340 200 460 C310 340 454 240 458.5 130 C468 60 447.5 -25 365 -45 C296.25 -60 213.75 -50 200 10 Z" fill="url(#hg)" stroke="#6d28d9" stroke-width="40" stroke-linejoin="round"/><text font-family="'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif" font-size="32" font-weight="900" fill="#ffc2e0" letter-spacing="1" text-anchor="end"><textPath href="#tl" startOffset="100%"><tspan dy="10" id="t1">Orologio di</tspan></textPath></text><text font-family="'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif" font-size="32" font-weight="900" fill="#ffc2e0" letter-spacing="1"><textPath href="#tr" startOffset="0%"><tspan dy="10" id="t2">Lucia Mauro</tspan></textPath></text><text font-family="'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif" font-size="30" font-weight="900" fill="#ffc2e0" letter-spacing="1" text-anchor="middle"><textPath href="#dl" startOffset="50%"><tspan dy="10" id="dl1"></tspan></textPath></text><text font-family="'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif" font-size="30" font-weight="900" fill="#ffc2e0" letter-spacing="1" text-anchor="middle"><textPath href="#dr" startOffset="50%"><tspan dy="10" id="dr1"></tspan></textPath></text>
-  <g id="nums" fill="none" stroke="#6d28d9" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"></g>
+  <g id="petals"></g><defs><radialGradient id="hg" gradientUnits="userSpaceOnUse" cx="200" cy="200" r="250"><stop offset="0" stop-color="#ffffff"/><stop offset=".15" stop-color="#ffffff"/><stop offset="1" stop-color="#ffb8da"/></radialGradient><radialGradient id="sg" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#a9b1bc"/></radialGradient><path id="tl" d="M-58.5 130 C-68 60 -47.5 -25 35 -45 C79.7 -54.75 130.1 -54 163.7 -35.8"/><path id="tr" d="M236.3 -35.8 C269.9 -54 320.3 -54.75 365 -45 C447.5 -25 468 60 458.5 130"/><path id="dl" d="M-58.5 130 C-54.4 240 90 340 200 460"/><path id="dr" d="M200 460 C310 340 454 240 458.5 130"/></defs><path d="M200 10 C186.25 -50 103.75 -60 35 -45 C-47.5 -25 -68 60 -58.5 130 C-54.4 240 90 340 200 460 C310 340 454 240 458.5 130 C468 60 447.5 -25 365 -45 C296.25 -60 213.75 -50 200 10 Z" id="shape" fill="url(#hg)" stroke="#6d28d9" stroke-width="40" stroke-linejoin="round"/><text font-family="'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif" font-size="32" font-weight="900" fill="#ffc2e0" letter-spacing="1" text-anchor="end"><textPath href="#tl" startOffset="100%"><tspan dy="10" id="t1">Orologio di</tspan></textPath></text><text font-family="'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif" font-size="32" font-weight="900" fill="#ffc2e0" letter-spacing="1"><textPath href="#tr" startOffset="0%"><tspan dy="10" id="t2">Lucia Mauro</tspan></textPath></text><text font-family="'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif" font-size="30" font-weight="900" fill="#ffc2e0" letter-spacing="1" text-anchor="middle"><textPath href="#dl" startOffset="50%"><tspan dy="10" id="dl1"></tspan></textPath></text><text font-family="'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif" font-size="30" font-weight="900" fill="#ffc2e0" letter-spacing="1" text-anchor="middle"><textPath href="#dr" startOffset="50%"><tspan dy="10" id="dr1"></tspan></textPath></text>
+  <g id="nums"></g>
   
   
-  <circle cx="100" cy="226" r="15" fill="#ff9aa2" opacity=".8"/><circle cx="300" cy="226" r="15" fill="#ff9aa2" opacity=".8"/><path d="M124 114 Q150 94 176 114" fill="none" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/><path d="M224 114 Q250 94 276 114" fill="none" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/><ellipse cx="150" cy="150" rx="26" ry="30" fill="url(#sg)" stroke="var(--ink)" stroke-width="4"/><ellipse cx="250" cy="150" rx="26" ry="30" fill="url(#sg)" stroke="var(--ink)" stroke-width="4"/><circle cx="154" cy="156" r="12" fill="#1d1d2b"/><circle cx="246" cy="156" r="12" fill="#1d1d2b"/><circle cx="158" cy="151" r="4" fill="#fff"/><circle cx="250" cy="151" r="4" fill="#fff"/><circle cx="200" cy="200" r="24" fill="#e63946" stroke="#1d1d2b" stroke-width="3"/><circle cx="192" cy="192" r="6" fill="#fff" opacity=".7"/><path d="M125 252 Q200 290 275 252 Q200 350 125 252 Z" fill="#e63946" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+  <g id="face"><circle cx="100" cy="226" r="15" fill="#ff9aa2" opacity=".8"/><circle cx="300" cy="226" r="15" fill="#ff9aa2" opacity=".8"/><path d="M124 114 Q150 94 176 114" fill="none" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/><path d="M224 114 Q250 94 276 114" fill="none" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/><ellipse cx="150" cy="150" rx="26" ry="30" fill="url(#sg)" stroke="var(--ink)" stroke-width="4"/><ellipse cx="250" cy="150" rx="26" ry="30" fill="url(#sg)" stroke="var(--ink)" stroke-width="4"/><circle cx="154" cy="156" r="12" fill="#1d1d2b"/><circle cx="246" cy="156" r="12" fill="#1d1d2b"/><circle cx="158" cy="151" r="4" fill="#fff"/><circle cx="250" cy="151" r="4" fill="#fff"/><circle cx="200" cy="200" r="24" fill="#e63946" stroke="#1d1d2b" stroke-width="3"/><circle cx="192" cy="192" r="6" fill="#fff" opacity=".7"/><path d="M125 252 Q200 290 275 252 Q200 350 125 252 Z" fill="#e63946" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/></g>
   
   
   
@@ -63,15 +66,13 @@ svg > text{fill:var(--txt,#ffc2e0);font-family:var(--font,'Comic Sans MS','Chalk
 
 <script>
 var nums=document.getElementById('nums');
-var V='#6d28d9',six='<path d="M18 5 C9 6 4 15 4 27"/><ellipse cx="12.5" cy="27" rx="7.5" ry="8.5" fill="'+V+'"/>';
-var GL={'0':'<ellipse cx="12" cy="20" rx="8.5" ry="16" fill="'+V+'"/>','1':'<path d="M5 11 L14 4 L14 37"/>','2':'<path d="M4 11 C4 2 20 2 20 11 Z" fill="'+V+'"/><path d="M4 10 C4 2 20 2 20 10 C20 18 6 26 4 36 L21 36"/>','3':'<path d="M8 4 C16 1 20 5 20 10 C20 16 14 19 8 19 Z" fill="'+V+'"/><path d="M8 19 C16 19 21 22 21 28 C21 36 15 38 8 37 Z" fill="'+V+'"/><path d="M4 7 C7 2 20 2 20 10 C20 17 14 19 10 19 C15 19 21 21 21 28 C21 38 8 39 3 33"/>','4':'<polygon points="3,26 17,4 17,26" fill="'+V+'"/><path d="M17 37 L17 4 L3 26 L22 26"/>','5':'<path d="M7 18 C15 15 21 18 21 27 C21 36 14 38 7 36 Z" fill="'+V+'"/><path d="M20 4 L6 4 L5 19 C10 15 21 17 21 27 C21 37 8 39 3 33"/>','6':six,'7':'<path d="M3 5 L21 5 L10 37"/>','8':'<ellipse cx="12" cy="11" rx="6.5" ry="6.5" fill="'+V+'"/><ellipse cx="12" cy="28" rx="8" ry="8" fill="'+V+'"/>','9':'<g transform="rotate(180 12.5 21)">'+six+'</g>'};
-for(var i=1;i<=12;i++){var a=i*30*Math.PI/180,t=document.createElementNS('http://www.w3.org/2000/svg','g');
-var s=''+i,W=s.length*26-2,cx=200+Math.sin(a)*135,cy=200-Math.cos(a)*135,h='';for(var k=0;k<s.length;k++)h+='<g transform="translate('+(k*26)+' 0)">'+GL[s[k]]+'</g>';t.setAttribute('transform','translate('+cx+' '+cy+') scale(.8) translate('+(-W/2)+' -20)');t.innerHTML=h;nums.appendChild(t);}
+var NS='http://www.w3.org/2000/svg',NUMT=[];
+for(var i=1;i<=12;i++){var tx=document.createElementNS(NS,'text');tx.textContent=i;tx.setAttribute('dy','.36em');nums.appendChild(tx);NUMT.push(tx)}
 var L={it:{tage:['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'],mon:['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'],t1:'Orologio di',t2:'Lucia Mauro',fmt:function(d,m,y){return d+' '+m+' '+y}},de:{tage:['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'],mon:['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],t1:'Uhr von',t2:'Lucia Mauro',fmt:function(d,m,y){return d+'. '+m+' '+y}}};var lang='it';
-function setLang(l){lang=l;var Lg=L[l];document.getElementById('t1').textContent=Lg.t1;document.getElementById('t2').textContent=Lg.t2;document.documentElement.lang=l;document.getElementById('bIt').className=l=='it'?'on':'';document.getElementById('bDe').className=l=='de'?'on':'';try{localStorage.setItem('lang',l)}catch(e){}if(window.uiLabels)uiLabels();}
+function setLang(l){lang=l;var Lg=L[l];document.getElementById('t1').textContent=Lg.t1;document.getElementById('t2').textContent=window.NAME||Lg.t2;document.documentElement.lang=l;document.getElementById('bIt').className=l=='it'?'on':'';document.getElementById('bDe').className=l=='de'?'on':'';try{localStorage.setItem('lang',l)}catch(e){}if(window.uiLabels)uiLabels();}
 document.getElementById('bIt').onclick=function(){setLang('it')};
 document.getElementById('bDe').onclick=function(){setLang('de')};
-var ITEMS=[['bg','Hintergrund','Sfondo','#c2185b'],['rim','Herzrand','Bordo del cuore','#6d28d9'],['hc','Herz Mitte','Centro del cuore','#ffffff'],['he','Herz aussen','Esterno del cuore','#ffb8da'],['num','Zahlen','Numeri','#6d28d9'],['hh','Stundenzeiger','Lancetta delle ore','#ffb3d9'],['mm','Minutenzeiger','Lancetta dei minuti','#c2185b'],['ss','Sekundenzeiger','Lancetta dei secondi','#8b5cf6'],['eye','Augen','Occhi','#c9d0d8'],['nose','Nase','Naso','#e63946'],['mouth','Mund','Bocca','#e63946'],['cheek','Wangen','Guance','#ff9aa2'],['txt','Beschriftung','Scritta','#ffc2e0'],['dig','Digitalzahlen','Numeri digitali','#111111'],['digbg','Digital-Hintergrund','Sfondo digitale','#ffffff']];
+var ITEMS=[['bg','Hintergrund','Sfondo','#c2185b'],['rim','Herzrand','Bordo del cuore','#6d28d9'],['hc','Herz Mitte','Centro del cuore','#ffffff'],['he','Herz aussen','Esterno del cuore','#ffb8da'],['num','Zahlen','Numeri','#6d28d9'],['hh','Stundenzeiger','Lancetta delle ore','#ffb3d9'],['mm','Minutenzeiger','Lancetta dei minuti','#c2185b'],['ss','Sekundenzeiger','Lancetta dei secondi','#8b5cf6'],['eye','Augen','Occhi','#c9d0d8'],['nose','Nase','Naso','#e63946'],['mouth','Mund','Bocca','#e63946'],['cheek','Wangen','Guance','#ff9aa2'],['txt','Beschriftung','Scritta','#ffc2e0'],['dig','Digitalzahlen','Numeri digitali','#111111'],['digbg','Digital-Hintergrund','Sfondo digitale','#ffffff'],['petal','Bl\u00fctenbl\u00e4tter','Petali','#ffd60a']];
 var FONTS=[['Comic (Standard)',"'Comic Sans MS','Chalkboard SE','Trebuchet MS',sans-serif"],['Fredoka',"'Fredoka','Trebuchet MS',sans-serif"],['Baloo 2',"'Baloo 2','Trebuchet MS',sans-serif"],['Chewy',"'Chewy','Comic Sans MS',sans-serif"],['Titan One',"'Titan One','Arial Black',sans-serif"],['Lobster',"'Lobster',Georgia,serif"],['Pacifico',"'Pacifico','Brush Script MT',cursive"],['Trebuchet',"'Trebuchet MS',Arial,sans-serif"],['Georgia',"Georgia,'Times New Roman',serif"],['Courier',"'Courier New',monospace"]];
 var saved={};try{saved=JSON.parse(localStorage.getItem('mausuhr')||'{}')}catch(e){}
 function save(){try{localStorage.setItem('mausuhr',JSON.stringify(saved))}catch(e){}}
@@ -85,7 +86,53 @@ fs.addEventListener('change',function(){saved.font=fs.value;RT.setProperty('--fo
 var rb=document.createElement('button');rb.type='button';rb.className='rst';panel.appendChild(rb);
 rb.onclick=function(){saved={};save();ITEMS.forEach(function(it){it[4].value=it[3];if(it[0]=='hc'||it[0]=='he'){applyC(it[0],it[3])}else RT.removeProperty('--'+it[0])});RT.removeProperty('--font');fs.selectedIndex=0};
 bs.onclick=function(){panel.hidden=!panel.hidden};
-window.uiLabels=function(){var j=lang=='de'?1:2;ITEMS.forEach(function(it,i){rows[i].textContent=it[j]});fsp.textContent=lang=='de'?'Schriftart':'Carattere';rb.textContent=lang=='de'?'Zurücksetzen':'Ripristina';bs.textContent=lang=='de'?'🎨 Farben':'🎨 Colori'};
+window.uiLabels=function(){var j=lang=='de'?1:2;ITEMS.forEach(function(it,i){rows[i].textContent=it[j]});fsp.textContent=lang=='de'?'Schrift Beschriftung':'Carattere scritta';rb.textContent=lang=='de'?'Zurücksetzen':'Ripristina';bs.textContent=lang=='de'?'⚙️ Einstellungen':'⚙️ Impostazioni'};
+var HD=document.getElementById('shape').getAttribute('d'),TK=['tl','tr','dl','dr'],TP={},HP={};
+TK.forEach(function(k){TP[k]=document.getElementById(k);HP[k]=TP[k].getAttribute('d')});
+function P(r,t){t=t*Math.PI/180;return (200+r*Math.sin(t)).toFixed(1)+' '+(200-r*Math.cos(t)).toFixed(1)}
+function arcP(r,a,b){return 'M'+P(r,a)+' A'+r+' '+r+' 0 0 '+(b>a?1:0)+' '+P(r,b)}
+var CIR='M0 200 A200 200 0 1 1 400 200 A200 200 0 1 1 0 200 Z';
+var CP={tl:arcP(200,-85,-6),tr:arcP(200,6,85),dl:arcP(200,270,185),dr:arcP(200,175,90)};
+var SHAPES={heart:{d:HD,p:HP,R:135,gr:250},circle:{d:CIR,p:CP,R:150,gr:200},square:{d:'M30 -10 H370 Q410 -10 410 30 V370 Q410 410 370 410 H30 Q-10 410 -10 370 V30 Q-10 -10 30 -10 Z',p:{tl:'M30 -10 L195 -10',tr:'M205 -10 L370 -10',dl:'M30 410 L170 410',dr:'M180 410 L370 410'},R:165,gr:260},flower:{d:CIR,p:CP,R:150,gr:200,petals:1}};
+var TS=[32,32,30,30];
+function placeNums(R){NUMT.forEach(function(tx,i){var a=(i+1)*30*Math.PI/180;tx.setAttribute('x',200+Math.sin(a)*R);tx.setAttribute('y',200-Math.cos(a)*R)})}
+function fitText(){try{var ts=document.querySelectorAll('svg > text');for(var i=0;i<ts.length&&i<4;i++){var t=ts[i];t.setAttribute('font-size',TS[i]);var L=t.getComputedTextLength(),M=TP[TK[i]].getTotalLength()*0.96;if(L>M)t.setAttribute('font-size',Math.max(12,Math.floor(TS[i]*M/L)))}}catch(e){}}
+function applyShape(n){var s=SHAPES[n]||SHAPES.heart;document.getElementById('shape').setAttribute('d',s.d);TK.forEach(function(k){TP[k].setAttribute('d',s.p[k])});placeNums(s.R);document.getElementById('hg').setAttribute('r',s.gr);var pg=document.getElementById('petals');pg.innerHTML='';if(s.petals){for(var j=0;j<12;j++){var a=j*30*Math.PI/180,c=document.createElementNS(NS,'circle');c.setAttribute('cx',200+Math.sin(a)*228);c.setAttribute('cy',200-Math.cos(a)*228);c.setAttribute('r',40);pg.appendChild(c)}}fitText()}
+function mkRow(ctrl){var lab=document.createElement('label');lab.className='row';var sp=document.createElement('span');lab.appendChild(ctrl);lab.appendChild(sp);panel.insertBefore(lab,fl);return sp}
+var SHN=[['heart','Herz','Cuore'],['circle','Kreis','Cerchio'],['square','Quadrat','Quadrato'],['flower','Blume','Fiore']];
+var ssel=document.createElement('select');SHN.forEach(function(x){var o=document.createElement('option');o.value=x[0];ssel.appendChild(o)});
+var sp1=mkRow(ssel);
+var nsel=document.createElement('select');FONTS.forEach(function(f){var o=document.createElement('option');o.value=f[1];o.textContent=f[0];nsel.appendChild(o)});
+var sp2=mkRow(nsel);
+var nr=document.createElement('input');nr.type='range';nr.min=28;nr.max=64;nr.value=42;
+var sp3=mkRow(nr);
+if(saved.shape&&SHAPES[saved.shape])ssel.value=saved.shape;
+if(saved.nfont){nsel.value=saved.nfont;RT.setProperty('--nfont',saved.nfont)}
+if(saved.nsize){nr.value=saved.nsize;RT.setProperty('--nsize',saved.nsize+'px')}
+ssel.onchange=function(){saved.shape=ssel.value;save();applyShape(ssel.value);uiLabels()};
+nsel.onchange=function(){saved.nfont=nsel.value;save();RT.setProperty('--nfont',nsel.value)};
+nr.oninput=function(){saved.nsize=nr.value;save();RT.setProperty('--nsize',nr.value+'px')};
+fs.addEventListener('change',function(){setTimeout(fitText,50);setTimeout(fitText,700)});
+rb.addEventListener('click',function(){ssel.value='heart';applyShape('heart');nsel.selectedIndex=0;RT.removeProperty('--nfont');nr.value=42;RT.removeProperty('--nsize');setTimeout(fitText,50)});
+function updateExtra(){var de=lang=='de',j=de?1:2;for(var i=0;i<SHN.length;i++)ssel.options[i].textContent=SHN[i][j];sp1.textContent=de?'Form':'Forma';sp2.textContent=de?'Schrift der Zahlen':'Carattere dei numeri';sp3.textContent=de?'Gr\u00f6sse der Zahlen':'Dimensione dei numeri'}
+var _ui=window.uiLabels;window.uiLabels=function(){_ui();updateExtra();fitText()};
+applyShape(ssel.value);
+var fc=document.getElementById('face'),fcb=document.createElement('input');fcb.type='checkbox';fcb.checked=saved.face!==false;
+var sp4=mkRow(fcb);
+function showFace(){fc.style.display=fcb.checked?'':'none'}
+fcb.onchange=function(){saved.face=fcb.checked;save();showFace()};
+showFace();
+rb.addEventListener('click',function(){fcb.checked=true;showFace()});
+var SHW={heart:['Herz','Herzrand','cuore'],circle:['Kreis','Kreisrand','cerchio'],square:['Quadrat','Quadratrand','quadrato'],flower:['Blume','Blumenrand','fiore']};
+var _ui2=window.uiLabels;window.uiLabels=function(){_ui2();var de=lang=='de',w=SHW[ssel.value]||SHW.heart;sp4.textContent=de?'Gesicht anzeigen':'Mostra il viso';rows[1].textContent=de?w[1]:'Bordo del '+w[2];rows[2].textContent=de?w[0]+' Mitte':'Centro del '+w[2];rows[3].textContent=de?w[0]+' aussen':'Esterno del '+w[2]};
+rb.addEventListener('click',function(){uiLabels()});
+var nmi=document.createElement('input');nmi.type='text';nmi.maxLength=24;nmi.value=saved.name||'Lucia Mauro';window.NAME=saved.name||'';
+var nml=document.createElement('label');nml.className='row';var sp5=document.createElement('span');nml.appendChild(nmi);nml.appendChild(sp5);panel.insertBefore(nml,panel.firstChild);
+function setName(){var v=nmi.value.trim();window.NAME=v;document.getElementById('t2').textContent=v||L[lang].t2;fitText()}
+nmi.oninput=function(){saved.name=nmi.value.trim();save();setName()};
+rb.addEventListener('click',function(){nmi.value='Lucia Mauro';window.NAME='';setName()});
+var _ui3=window.uiLabels;window.uiLabels=function(){_ui3();sp5.textContent=lang=='de'?'Name':'Nome'};
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitText);
 var init='it';try{init=localStorage.getItem('lang')||'it'}catch(e){}
 setLang(init=='de'?'de':'it');
 function p(n){return n<10?'0'+n:''+n}
@@ -98,7 +145,7 @@ function tick(){
   document.getElementById('dig').textContent=p(h)+':'+p(m);
   document.getElementById('sec').textContent=p(s);
   var dk=lang+d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();
-  if(dk!==window._dk){window._dk=dk;var Lg=L[lang];document.getElementById('dl1').textContent=Lg.tage[d.getDay()];document.getElementById('dr1').textContent=Lg.fmt(d.getDate(),Lg.mon[d.getMonth()],d.getFullYear());}
+  if(dk!==window._dk){window._dk=dk;var Lg=L[lang];document.getElementById('dl1').textContent=Lg.tage[d.getDay()];document.getElementById('dr1').textContent=Lg.fmt(d.getDate(),Lg.mon[d.getMonth()],d.getFullYear());fitText();}
 }
 tick();setInterval(tick,50);
 </script>
