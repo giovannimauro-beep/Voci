@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Kinder Lern-App</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    #hidden-input {
+      position: absolute;
+      top: -1000px;
+      left: -1000px;
+      opacity: 0;
+    }
+
+    .top-btn {
+      position: absolute;
+      top: 20px;
+      width: 45px;
+      height: 45px;
+      font-size: 24px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    #btn-menu { left: 20px; }
+    #btn-close { right: 20px; }
+
+    #display-container {
+      position: absolute;
+      top: 80px;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      word-break: break-word;
+      white-space: pre-wrap;
+      overflow: hidden;
+    }
+
+    #display-text {
+      width: 100%;
+      line-height: 1.1;
+      transition: opacity 0.1s;
+    }
+
+    #menu-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: #f0f0f0;
+      width: 95%;
+      max-width: 1000px;
+      height: 85vh;
+      max-height: 600px;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .close-modal-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    #main-menu-view {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      height: 100%;
+      justify-content: center;
+    }
+
+    .large-menu-btn {
+      flex: 1;
+      background: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-size: 45px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .grid-view {
+      display: none;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 10px;
+      height: 100%;
+      width: 100%;
+      overflow-y: auto;
+    }
+
+    .grid-item {
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      padding: 5px;
+      font-size: 16px;
+      word-break: break-word;
+      white-space: pre-wrap;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+
+  <button id="btn-menu" class="top-btn">⚙️</button>
+  <button id="btn-close" class="top-btn" onclick="window.close()">❌</button>
+
+  <div id="display-container">
+    <div id="display-text"></div>
+  </div>
+
+  <textarea id="hidden-input" autofocus></textarea>
+
+  <div id="menu-modal">
+    <div class="modal-content">
+      <button class="close-modal-btn" id="btn-modal-close">✖</button>
+      
+      <div id="main-menu-view">
+        <button class="large-menu-btn" id="open-design-btn">🎨 Design</button>
+        <button class="large-menu-btn" id="open-font-btn">🔤 Schriftart</button>
+      </div>
+
+      <div id="design-grid-view" class="grid-view"></div>
+      <div id="font-grid-view" class="grid-view"></div>
+    </div>
+  </div>
+
+  <script>
+    const FONTS = [
+      'Arial', 'Comic Sans MS', 'Impact', 'Chalkduster', 'Snell Roundhand', 
+      'Zapfino', 'Courier New', 'Verdana', 'Helvetica', 'Gill Sans', 
+      'Copperplate', 'Georgia', 'Bradley Hand', 'Didot', 'Futura', 
+      'Trebuchet MS', 'Papyrus', 'Times New Roman', 'American Typewriter', 
+      'Baskerville', 'Brush Script MT', 'Palatino', 'Optima', 'Monaco'
+    ];
+
+    const THEMES = [
+      ["#000000", "#ffffff"], ["#ffffff", "#000000"], ["#1e90ff", "#ffffff"], 
+      ["#ff1493", "#ffff00"], ["#32cd32", "#00008b"], ["#800080", "#ffd700"],
+      ["#fdf5e6", "#8b4513"], ["#2f4f4f", "#e0ffff"], ["#ff4500", "#ffffff"], 
+      ["#ffff00", "#000080"], ["#4b0082", "#e6e6fa"], ["#7fffd4", "#006400"],
+      ["#8b0000", "#ffa500"], ["#ff69b4", "#4b0082"], ["#008080", "#f0fff0"],
+      ["#20b2aa", "#fff5ee"], ["#778899", "#f8f8ff"], ["#bc8f8f", "#556b2f"],
+      ["#da70d6", "#483d8b"], ["#eee8aa", "#8b4513"], ["#66cdaa", "#000000"],
+      ["#d2691e", "#ffffff"], ["#4682b4", "#f0f8ff"], ["#5f9ea0", "#000080"]
+    ];
+
+    let currentThemeIdx = 0;
+    let currentFontIdx = 0;
+    let lastText = "";
+
+    const hiddenInput = document.getElementById('hidden-input');
+    const displayText = document.getElementById('display-text');
+    const displayContainer = document.getElementById('display-container');
+    const menuModal = document.getElementById('menu-modal');
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playClickSound() {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.05);
+    }
+
+    function playDeleteSound() {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.15);
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!menuModal.contains(e.target) && e.target.id !== 'btn-menu') {
+        hiddenInput.focus();
+      }
+    });
+
+    hiddenInput.addEventListener('input', () => {
+      const newText = hiddenInput.value;
+      
+      if (newText.length < lastText.length) {
+        playDeleteSound();
+        displayText.style.opacity = '0.3';
+        setTimeout(() => displayText.style.opacity = '1.0', 150);
+      } else if (newText.length > lastText.length) {
+        playClickSound();
+      }
+
+      lastText = newText;
+      displayText.innerText = newText;
+      updateFontSize();
+    });
+
+    function updateFontSize() {
+      const text = displayText.innerText || "A";
+      let fontSize = 300;
+      displayText.style.fontSize = fontSize + 'px';
+
+      const containerWidth = displayContainer.clientWidth;
+      const containerHeight = displayContainer.clientHeight;
+
+      while ((displayText.scrollWidth > containerWidth || displayText.scrollHeight > containerHeight) && fontSize > 16) {
+        fontSize -= 2;
+        displayText.style.fontSize = fontSize + 'px';
+      }
+    }
+
+    window.addEventListener('resize', updateFontSize);
+
+    function applyStyle() {
+      const theme = THEMES[currentThemeIdx];
+      document.body.style.backgroundColor = theme[0];
+      displayText.style.color = theme[1];
+      displayText.style.fontFamily = FONTS[currentFontIdx];
+      updateFontSize();
+    }
+
+    const btnMenu = document.getElementById('btn-menu');
+    const btnModalClose = document.getElementById('btn-modal-close');
+    const mainMenuView = document.getElementById('main-menu-view');
+    const designGridView = document.getElementById('design-grid-view');
+    const fontGridView = document.getElementById('font-grid-view');
+
+    btnMenu.addEventListener('click', () => {
+      audioCtx.resume();
+      setupMenuPreviews();
+      mainMenuView.style.display = 'flex';
+      designGridView.style.display = 'none';
+      fontGridView.style.display = 'none';
+      menuModal.style.display = 'flex';
+    });
+
+    btnModalClose.addEventListener('click', () => {
+      menuModal.style.display = 'none';
+      hiddenInput.focus();
+    });
+
+    document.getElementById('open-design-btn').addEventListener('click', () => {
+      mainMenuView.style.display = 'none';
+      designGridView.style.display = 'grid';
+    });
+
+    document.getElementById('open-font-btn').addEventListener('click', () => {
+      mainMenuView.style.display = 'none';
+      fontGridView.style.display = 'grid';
+    });
+
+    function setupMenuPreviews() {
+      const previewText = displayText.innerText && displayText.innerText.trim() ? displayText.innerText : "ABC";
+
+      designGridView.innerHTML = '';
+      THEMES.forEach((theme, idx) => {
+        const item = document.createElement('div');
+        item.className = 'grid-item';
+        item.style.backgroundColor = theme[0];
+        item.style.color = theme[1];
+        item.style.fontFamily = FONTS[currentFontIdx];
+        item.innerText = previewText;
+        item.addEventListener('click', () => {
+          currentThemeIdx = idx;
+          applyStyle();
+          menuModal.style.display = 'none';
+          hiddenInput.focus();
+        });
+        designGridView.appendChild(item);
+      });
+
+      fontGridView.innerHTML = '';
+      FONTS.forEach((font, idx) => {
+        const item = document.createElement('div');
+        item.className = 'grid-item';
+        item.style.backgroundColor = '#ffffff';
+        item.style.color = '#000000';
+        item.style.fontFamily = font;
+        item.innerText = previewText;
+        item.addEventListener('click', () => {
+          currentFontIdx = idx;
+          applyStyle();
+          menuModal.style.display = 'none';
+          hiddenInput.focus();
+        });
+        fontGridView.appendChild(item);
+      });
+    }
+
+    applyStyle();
+    hiddenInput.focus();
+  </script>
+</body>
+</html>
