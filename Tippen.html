@@ -18,7 +18,7 @@
       height: 100%;
       overflow: hidden;
       font-family: Arial, sans-serif;
-      transition: background-color 0.2s, color 0.2s;
+      transition: background-color 0.3s, color 0.3s;
     }
 
     #hidden-input {
@@ -30,10 +30,10 @@
 
     .top-btn {
       position: absolute;
-      top: 20px;
-      width: 45px;
-      height: 45px;
-      font-size: 24px;
+      top: 30px;
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
       background: rgba(255, 255, 255, 0.2);
       border: 1px solid rgba(0, 0, 0, 0.1);
       border-radius: 8px;
@@ -65,7 +65,7 @@
     #display-text {
       width: 100%;
       line-height: 1.1;
-      transition: opacity 0.1s;
+      transition: opacity 1.5s ease-in-out;
     }
 
     #menu-modal {
@@ -118,7 +118,7 @@
       background: #ffffff;
       border: none;
       border-radius: 12px;
-      font-size: 45px;
+      font-size: 80px;
       font-weight: bold;
       cursor: pointer;
       display: flex;
@@ -146,7 +146,7 @@
       text-align: center;
       cursor: pointer;
       padding: 5px;
-      font-size: 16px;
+      font-size: 15px;
       word-break: break-word;
       white-space: pre-wrap;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -156,7 +156,7 @@
 <body>
 
   <button id="btn-menu" class="top-btn">⚙️</button>
-  <button id="btn-close" class="top-btn" onclick="window.close()">❌</button>
+  <button id="btn-close" class="top-btn">❌</button>
 
   <div id="display-container">
     <div id="display-text"></div>
@@ -179,12 +179,15 @@
   </div>
 
   <script>
+    // --- EINSTELLUNGEN ---
+    const FADE_DELAY = 5000; // Zeit in Millisekunden (5000 ms = 5 Sekunden) bis zum Verblassen
+
     const FONTS = [
-      'Arial', 'Comic Sans MS', 'Impact', 'Chalkduster', 'Snell Roundhand', 
-      'Zapfino', 'Courier New', 'Verdana', 'Helvetica', 'Gill Sans', 
-      'Copperplate', 'Georgia', 'Bradley Hand', 'Didot', 'Futura', 
-      'Trebuchet MS', 'Papyrus', 'Times New Roman', 'American Typewriter', 
-      'Baskerville', 'Brush Script MT', 'Palatino', 'Optima', 'Monaco'
+      'Arial-BoldMT', 'Comic Sans MS', 'Marker Felt', 'Chalkduster', 'Snell Roundhand', 
+      'Zapfino', 'Party LET', 'Courier New', 'Verdana', 'Helvetica', 
+      'Gill Sans', 'Copperplate', 'Bodoni 72', 'Bradley Hand', 'Didot', 
+      'Futura', 'Gill Sans', 'Hoefler Text', 'Noteworthy', 'Optima', 
+      'Papyrus', 'Savoye LET', 'Thonburi', 'Trebuchet MS'
     ];
 
     const THEMES = [
@@ -201,6 +204,7 @@
     let currentThemeIdx = 0;
     let currentFontIdx = 0;
     let lastText = "";
+    let fadeTimer = null;
 
     const hiddenInput = document.getElementById('hidden-input');
     const displayText = document.getElementById('display-text');
@@ -236,11 +240,37 @@
       osc.stop(audioCtx.currentTime + 0.15);
     }
 
+    // Schließen-Button Logik
+    document.getElementById('btn-close').addEventListener('click', () => {
+      window.close();
+      setTimeout(() => {
+        document.body.innerHTML = "<div style='display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;font-size:30px;background:#111;color:#fff;'>App geschlossen. Du kannst diesen Tab nun schliessen.</div>";
+      }, 100);
+    });
+
     document.addEventListener('click', (e) => {
       if (!menuModal.contains(e.target) && e.target.id !== 'btn-menu') {
         hiddenInput.focus();
       }
     });
+
+    // Timer für automatisches Verblassen
+    function resetFadeTimer() {
+      if (fadeTimer) clearTimeout(fadeTimer);
+      displayText.style.opacity = '1';
+
+      if (hiddenInput.value.trim() !== "") {
+        fadeTimer = setTimeout(() => {
+          displayText.style.opacity = '0'; // Startet das Ausblenden (dauert 1.5s laut CSS)
+          setTimeout(() => {
+            hiddenInput.value = "";
+            lastText = "";
+            displayText.innerText = "";
+            displayText.style.opacity = '1';
+          }, 1500);
+        }, FADE_DELAY);
+      }
+    }
 
     hiddenInput.addEventListener('input', () => {
       const newText = hiddenInput.value;
@@ -256,6 +286,7 @@
       lastText = newText;
       displayText.innerText = newText;
       updateFontSize();
+      resetFadeTimer();
     });
 
     function updateFontSize() {
@@ -290,6 +321,7 @@
 
     btnMenu.addEventListener('click', () => {
       audioCtx.resume();
+      if (fadeTimer) clearTimeout(fadeTimer); // Timer anhalten, während man im Menü ist
       setupMenuPreviews();
       mainMenuView.style.display = 'flex';
       designGridView.style.display = 'none';
@@ -300,6 +332,7 @@
     btnModalClose.addEventListener('click', () => {
       menuModal.style.display = 'none';
       hiddenInput.focus();
+      resetFadeTimer();
     });
 
     document.getElementById('open-design-btn').addEventListener('click', () => {
@@ -328,6 +361,7 @@
           applyStyle();
           menuModal.style.display = 'none';
           hiddenInput.focus();
+          resetFadeTimer();
         });
         designGridView.appendChild(item);
       });
@@ -345,6 +379,7 @@
           applyStyle();
           menuModal.style.display = 'none';
           hiddenInput.focus();
+          resetFadeTimer();
         });
         fontGridView.appendChild(item);
       });
