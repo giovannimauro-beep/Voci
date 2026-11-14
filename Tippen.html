@@ -45,7 +45,29 @@
     }
 
     #btn-menu { left: 20px; }
+    #btn-fullscreen { right: 120px; }
+    #btn-sound { right: 70px; }
     #btn-close { right: 20px; }
+
+    /* Visueller Timer-Ring um den Einstellungs-Button */
+    #btn-menu::after {
+      content: '';
+      position: absolute;
+      top: -3px; left: -3px; right: -3px; bottom: -3px;
+      border: 3px solid transparent;
+      border-radius: 11px;
+      pointer-events: none;
+      transition: border-color 0.2s;
+    }
+    .timer-active::after {
+      border-color: rgba(255, 255, 255, 0.8) !important;
+      animation: countdown-ring linear forwards;
+    }
+
+    @keyframes countdown-ring {
+      from { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 0); }
+      to { clip-path: polygon(50% 50%, 50% 0, 50% 0, 50% 0, 50% 0); }
+    }
 
     #display-container {
       position: absolute;
@@ -108,7 +130,7 @@
     #main-menu-view {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 15px;
       height: 100%;
       justify-content: center;
     }
@@ -118,7 +140,7 @@
       background: #ffffff;
       border: none;
       border-radius: 12px;
-      font-size: 80px;
+      font-size: 60px;
       font-weight: bold;
       cursor: pointer;
       display: flex;
@@ -155,8 +177,10 @@
 </head>
 <body>
 
-  <button id="btn-menu" class="top-btn">⚙️</button>
-  <button id="btn-close" class="top-btn">❌</button>
+  <button id="btn-menu" class="top-btn" title="Einstellungen">⚙️</button>
+  <button id="btn-fullscreen" class="top-btn" title="Vollbild">⛶</button>
+  <button id="btn-sound" class="top-btn" title="Ton an/aus">🔊</button>
+  <button id="btn-close" class="top-btn" title="Schliessen">❌</button>
 
   <div id="display-container">
     <div id="display-text"></div>
@@ -171,6 +195,7 @@
       <div id="main-menu-view">
         <button class="large-menu-btn" id="open-design-btn">🎨 Design</button>
         <button class="large-menu-btn" id="open-font-btn">🔤 Schriftart</button>
+        <button class="large-menu-btn" id="btn-toggle-timer" style="font-size: 35px; flex: 0.5; background: #e2e2e2;">⏱️ Verblass-Timer: 5 Sek.</button>
       </div>
 
       <div id="design-grid-view" class="grid-view"></div>
@@ -180,7 +205,9 @@
 
   <script>
     // --- EINSTELLUNGEN ---
-    const FADE_DELAY = 5000; // Zeit in Millisekunden (5000 ms = 5 Sekunden) bis zum Verblassen
+    let fadeDelayOptions = [3000, 5000, 10000, 15000, 0]; // 0 bedeutet Endlos (kein Verblassen)
+    let fadeDelayLabels = ["3 Sek.", "5 Sek.", "10 Sek.", "15 Sek.", "Endlos"];
+    let currentFadeIdx = 1; // Startet bei 5 Sekunden
 
     const FONTS = [
       'Arial-BoldMT', 'Comic Sans MS', 'Marker Felt', 'Chalkduster', 'Snell Roundhand', 
@@ -205,15 +232,19 @@
     let currentFontIdx = 0;
     let lastText = "";
     let fadeTimer = null;
+    let soundMuted = false;
 
     const hiddenInput = document.getElementById('hidden-input');
     const displayText = document.getElementById('display-text');
     const displayContainer = document.getElementById('display-container');
     const menuModal = document.getElementById('menu-modal');
+    const btnMenu = document.getElementById('btn-menu');
+    const btnToggleTimer = document.getElementById('btn-toggle-timer');
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
     function playClickSound() {
+      if (soundMuted) return;
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.type = 'sine';
@@ -227,6 +258,7 @@
     }
 
     function playDeleteSound() {
+      if (soundMuted) return;
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.type = 'triangle';
@@ -240,6 +272,36 @@
       osc.stop(audioCtx.currentTime + 0.15);
     }
 
+    // Timer-Umschalter im Menü
+    function updateTimerButtonLabel() {
+      btnToggleTimer.innerText = `⏱️ Verblass-Timer: ${fadeDelayLabels[currentFadeIdx]}`;
+    }
+
+    btnToggleTimer.addEventListener('click', () => {
+      currentFadeIdx = (currentFadeIdx + 1) % fadeDelayOptions.length;
+      updateTimerButtonLabel();
+      hiddenInput.focus();
+    });
+
+    // Sound-Mute Schalter
+    const btnSound = document.getElementById('btn-sound');
+    btnSound.addEventListener('click', () => {
+      soundMuted = !soundMuted;
+      btnSound.innerText = soundMuted ? "🔇" : "🔊";
+      hiddenInput.focus();
+    });
+
+    // Vollbild-Modus Schalter
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+    btnFullscreen.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.log(err));
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+      hiddenInput.focus();
+    });
+
     // Schließen-Button Logik
     document.getElementById('btn-close').addEventListener('click', () => {
       window.close();
@@ -249,26 +311,35 @@
     });
 
     document.addEventListener('click', (e) => {
-      if (!menuModal.contains(e.target) && e.target.id !== 'btn-menu') {
+      if (!menuModal.contains(e.target) && !e.target.classList.contains('top-btn')) {
         hiddenInput.focus();
       }
     });
 
-    // Timer für automatisches Verblassen
+    // Timer für automatisches Verblassen inklusive visueller Ring-Animation
     function resetFadeTimer() {
       if (fadeTimer) clearTimeout(fadeTimer);
       displayText.style.opacity = '1';
+      btnMenu.classList.remove('timer-active');
+      void btnMenu.offsetWidth; // Reflow erzwingen, um Animation zurückzusetzen
 
-      if (hiddenInput.value.trim() !== "") {
+      let currentDelay = fadeDelayOptions[currentFadeIdx];
+      if (currentDelay > 0 && hiddenInput.value.trim() !== "") {
+        // Animation starten
+        btnMenu.style.setProperty('--animation-duration', (currentDelay / 1000) + 's');
+        btnMenu.style.animationDuration = (currentDelay / 1000) + 's';
+        btnMenu.classList.add('timer-active');
+
         fadeTimer = setTimeout(() => {
-          displayText.style.opacity = '0'; // Startet das Ausblenden (dauert 1.5s laut CSS)
+          btnMenu.classList.remove('timer-active');
+          displayText.style.opacity = '0';
           setTimeout(() => {
             hiddenInput.value = "";
             lastText = "";
             displayText.innerText = "";
             displayText.style.opacity = '1';
           }, 1500);
-        }, FADE_DELAY);
+        }, currentDelay);
       }
     }
 
@@ -313,7 +384,6 @@
       updateFontSize();
     }
 
-    const btnMenu = document.getElementById('btn-menu');
     const btnModalClose = document.getElementById('btn-modal-close');
     const mainMenuView = document.getElementById('main-menu-view');
     const designGridView = document.getElementById('design-grid-view');
@@ -321,7 +391,9 @@
 
     btnMenu.addEventListener('click', () => {
       audioCtx.resume();
-      if (fadeTimer) clearTimeout(fadeTimer); // Timer anhalten, während man im Menü ist
+      if (fadeTimer) clearTimeout(fadeTimer);
+      btnMenu.classList.remove('timer-active');
+      updateTimerButtonLabel();
       setupMenuPreviews();
       mainMenuView.style.display = 'flex';
       designGridView.style.display = 'none';
