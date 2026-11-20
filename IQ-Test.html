@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IQ-Test</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f5f1;--card:#fff;--tx:#1d1d1b;--mu:#6b6a65;--ac:#2f5fd0;--acs:#e6edfb;--bd:#d9d7cf;--ok:#1d8a4e;--no:#c23b3b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17171a;--card:#222226;--tx:#f0efea;--mu:#9a99a1;--ac:#7ea2ff;--acs:#2a3550;--bd:#3a3a40;--ok:#4cc884;--no:#ee7a7a}}
+:root[data-theme="dark"]{--bg:#17171a;--card:#222226;--tx:#f0efea;--mu:#9a99a1;--ac:#7ea2ff;--acs:#2a3550;--bd:#3a3a40;--ok:#4cc884;--no:#ee7a7a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+main{max-width:640px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.5rem;margin:8px 0 4px}h3{margin:18px 0 6px;font-size:1.05rem}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px;margin-top:14px}
+.mu{color:var(--mu);font-size:.9rem}
+.bar{height:8px;background:var(--acs);border-radius:99px;overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;background:var(--ac);transition:width .25s}
+.type{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ac);font-weight:600}
+.q{font-size:1.15rem;margin:8px 0 14px}
+.seq{font-size:1.5rem;font-weight:600;letter-spacing:.04em;margin:10px 0 16px;overflow-x:auto;white-space:nowrap}
+.svgrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:10px 0 16px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.opt{background:var(--bg);border:2px solid var(--bd);border-radius:10px;padding:12px 8px;font-size:1.1rem;color:var(--tx);cursor:pointer;display:flex;justify-content:center;align-items:center;min-height:54px;font-family:inherit}
+.opt:hover{border-color:var(--ac)}
+.btn{margin-top:18px;background:var(--ac);color:#fff;border:0;border-radius:10px;padding:12px 22px;font-size:1rem;cursor:pointer;font-family:inherit}
+table.m{border-collapse:collapse;margin:8px 0 16px;font-size:1.3rem;font-weight:600}
+table.m td{border:1px solid var(--bd);padding:8px 16px;text-align:center}
+table.t{width:100%;border-collapse:collapse;font-size:.92rem}
+table.t td,table.t th{padding:6px 4px;border-bottom:1px solid var(--bd);text-align:left}
+.iq{font-size:4rem;font-weight:700;color:var(--ac);line-height:1}
+svg{max-width:100%}
+svg .s{stroke:var(--tx);fill:none;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+</style>
+</head>
+<body>
+<main>
+<h1>IQ-Test</h1>
+<div class="mu">15 von 30 Aufgabentypen · Schwierigkeit passt sich an · die Zeit zählt</div>
+<div id="app"></div>
+</main>
+<script>
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=R(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=a=>a[R(0,a.length-1)];
+function numOpts(c){const s=new Set([c]);let t=0;while(s.size<5&&t++<200){const d=R(1,Math.max(3,Math.round(Math.abs(c)*0.25)+2))*(Math.random()<.5?-1:1);if(c+d>0)s.add(c+d)}const arr=shuffle([...s]);return{options:arr.map(String),ans:arr.indexOf(c)}}
+function txtOpts(c,pool,n=5){const s=new Set([c]);for(const p of shuffle(pool))if(s.size<n)s.add(p);const arr=shuffle([...s]);return{options:arr,ans:arr.indexOf(c)}}
+const arrow=a=>`<svg width="64" height="64" viewBox="0 0 64 64"><g transform="rotate(${a} 32 32)"><path class="s" d="M32 54V12M32 10l-9 11M32 10l9 11"/></g></svg>`;
+const poly=(n,rot=0)=>{const p=[];for(let i=0;i<n;i++){const t=rot+i*2*Math.PI/n;p.push((32+22*Math.sin(t)).toFixed(1)+","+(32-22*Math.cos(t)).toFixed(1))}return `<svg width="64" height="64" viewBox="0 0 64 64"><polygon class="s" points="${p.join(" ")}"/></svg>`};
+const polyD=(n,d)=>{const p=[];for(let i=0;i<n;i++){const t=i*2*Math.PI/n;p.push((32+26*Math.sin(t)).toFixed(1)+","+(32-26*Math.cos(t)).toFixed(1))}let c="";for(let i=0;i<d;i++)c+=`<circle cx="${32+(i-(d-1)/2)*9}" cy="32" r="3" style="fill:var(--tx)"/>`;return `<svg width="56" height="56" viewBox="0 0 64 64"><polygon class="s" points="${p.join(" ")}"/>${c}</svg>`};
+const flag=tr=>`<svg width="64" height="64" viewBox="0 0 64 64"><g transform="${tr}"><path class="s" d="M26 10V54M26 10L48 24L26 30"/></g></svg>`;
+const seqTxt=(a,q="?")=>a.join(" , ")+" , "+q;
+const g=(c,p,t,f)=>({c,p,t,f});
+const NM=["Anna","Ben","Clara","David","Elif","Fabio","Greta","Hugo"],DAYS=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
+const ANA=[["Hund","bellen","Katze","miauen"],["Auge","sehen","Ohr","hören"],["Vogel","Nest","Biene","Stock"],["Hand","Finger","Fuss","Zehe"],["Tag","Nacht","Sommer","Winter"],["Arzt","Patient","Lehrer","Schüler"],["Buch","lesen","Lied","singen"],["Messer","schneiden","Stift","schreiben"]];
+const WC={Tiere:["Hund","Katze","Pferd","Kuh","Schaf","Fuchs"],Obst:["Apfel","Birne","Kirsche","Pflaume","Banane"],Werkzeuge:["Hammer","Säge","Zange","Bohrer","Feile"],Städte:["Bern","Zürich","Basel","Luzern","Genf"],Farben:["Rot","Blau","Grün","Gelb","Lila"],Instrumente:["Geige","Flöte","Harfe","Cello","Tuba"]};
+const PR=[2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71];
+const Z="Zahlenreihen",RE="Rechnen",LO="Logik",FI="Figuren",WO="Buchstaben & Wörter";
+const G=[
+g(Z,20,"Zahlenreihe",L=>{const a=R(2,10+5*L),d=R(2,4+2*L),s=[0,1,2,3,4].map(i=>a+i*d);return{text:"Welche Zahl setzt die Reihe fort?",seq:seqTxt(s),...numOpts(a+5*d)}}),
+g(Z,25,"Zahlenreihe",L=>{const a=R(1,3),r=R(2,L>1?4:3),s=[0,1,2,3,4].map(i=>a*r**i);return{text:"Welche Zahl setzt die Reihe fort?",seq:seqTxt(s),...numOpts(a*r**5)}}),
+g(Z,35,"Zwei verschränkte Reihen",L=>{const a=R(1,10),d1=R(2,3+L),b=R(40,60),d2=R(2,4+L),s=[a,b,a+d1,b-d2,a+2*d1,b-2*d2];return{text:"Wie lautet die nächste Zahl?",seq:seqTxt(s),...numOpts(a+3*d1)}}),
+g(Z,30,"Wachsende Differenzen",L=>{const a=R(1,10),k=R(1,L+1);let s=[a];for(let i=0;i<4;i++)s.push(s[i]+k+i*(L>2?2:1));return{text:"Wie lautet die nächste Zahl?",seq:seqTxt(s),...numOpts(s[4]+k+4*(L>2?2:1))}}),
+g(Z,30,"Additionsreihe",L=>{const x=R(1,3+L),y=R(2,5+L),s=[x,y];for(let i=2;i<6;i++)s.push(s[i-1]+s[i-2]);return{text:"Jede Zahl ergibt sich aus den beiden vorherigen. Wie geht es weiter?",seq:seqTxt(s),...numOpts(s[4]+s[5])}}),
+g(Z,25,"Ausreisser finden",L=>{const k=R(3,6+L),n=[];while(n.length<4)n.push(k*R(2,15));let o;do{o=R(7,100)}while(o%k===0||n.includes(o));const all=shuffle([...n,o]);return{text:"Welche Zahl passt nicht zu den anderen?",options:all.map(String),ans:all.indexOf(o)}}),
+g(Z,25,"Zahlenanalogie",L=>{const k=R(2,5),f=pick([[x=>x*k],[x=>x*x],[x=>x+k*3]]);let a=R(2,5+L);while(new Set([a*k,a*a,a+k*3]).size<3)a=R(2,5+L);let b;do{b=R(2,9)}while(b===a);return{text:"Finde die gleiche Beziehung:",seq:`${a} : ${f[0](a)} = ${b} : ?`,...numOpts(f[0](b))}}),
+g(Z,30,"Zahlenmatrix",L=>{const op=pick(L>1?["+","×"]:["+"]),rows=[];for(let i=0;i<3;i++){const x=R(2,8+L),y=R(2,8+L);rows.push([x,y,op==="+"?x+y:x*y])}return{text:"Jede Zeile folgt derselben Regel. Was fehlt?",html:`<table class="m">${rows.map((r,i)=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${i===2?"?":r[2]}</td></tr>`).join("")}</table>`,...numOpts(rows[2][2])}}),
+g(Z,30,"Quadratzahlen",L=>{const n=R(1,5),c=L>1?R(1,3*L):0,s=[0,1,2,3,4].map(i=>(n+i)**2+c);return{text:"Welche Zahl setzt die Reihe fort?",seq:seqTxt(s),...numOpts((n+5)**2+c)}}),
+g(Z,25,"Primzahlen",L=>{const i=R(0,6+2*L);return{text:"Welche Zahl setzt die Reihe fort?",seq:seqTxt(PR.slice(i,i+5)),...numOpts(PR[i+5])}}),
+g(RE,35,"Textaufgabe",L=>{const v=pick([60,70,80,90,120]),t=R(2,3+L);return{text:`Ein Zug fährt mit ${v} km/h. Wie viele Kilometer legt er in ${t} Stunden zurück?`,...numOpts(v*t)}}),
+g(RE,45,"Denkaufgabe",L=>{const k=pick([3,4,5,6,8]),m=pick([50,100,200]);return{text:`${k} Arbeiter bauen ${k} Mauern in ${k} Tagen. Wie viele Tage brauchen ${m} Arbeiter für ${m} Mauern?`,...numOpts(k)}}),
+g(RE,35,"Prozentrechnen",L=>{const p=pick([10,15,20,25,30,50]),y=R(2,8+6*L)*20;return{text:`Wie viel sind ${p} % von ${y}?`,...numOpts(y*p/100)}}),
+g(RE,45,"Altersrätsel",L=>{const s=R(5,10+2*L),k=R(3,5);return{text:`Ein Vater ist ${k} Mal so alt wie sein Sohn. Zusammen sind sie ${s*(k+1)} Jahre alt. Wie alt ist der Sohn?`,...numOpts(s)}}),
+g(RE,40,"Durchschnitt",L=>{const m=R(10,20+5*L),a=m+R(-6,6),b=m+R(-6,6),c=m+R(-6,6);return{text:`Der Durchschnitt von vier Zahlen ist ${m}. Drei davon sind ${a}, ${b} und ${c}. Wie gross ist die vierte Zahl?`,...numOpts(4*m-a-b-c)}}),
+g(RE,30,"Gleichung",L=>{const x=R(2,9+3*L),a=R(2,9),b=R(1,20);return{text:`Wenn ${a}x + ${b} = ${a*x+b} gilt, wie gross ist x?`,...numOpts(x)}}),
+g(RE,35,"Kleinstes gemeinsames Vielfaches",L=>{const p=pick([[4,6,12],[6,8,24],[4,10,20],[6,9,18],[8,12,24],[9,12,36],[10,15,30]]);return{text:`Welches ist die kleinste Zahl, die sowohl durch ${p[0]} als auch durch ${p[1]} teilbar ist?`,...numOpts(p[2])}}),
+g(LO,30,"Logisches Schliessen",L=>{const n=shuffle(NM).slice(0,3),big=Math.random()<.5,w=big?"grösser":"kleiner",r=(a,b)=>`${a} ist ${w} als ${b}.`;return{text:`${r(n[0],n[1])} ${r(n[1],n[2])}<br>Wer ist am ${big?"kleinsten":"grössten"}?`,...txtOpts(n[2],n,3)}}),
+g(LO,35,"Syllogismus",L=>{const w=shuffle(["Bleks","Torps","Mirks","Lunks","Zorps","Fanks"]),f=R(0,2),T=[[`Alle ${w[0]} sind ${w[1]}. Alle ${w[1]} sind ${w[2]}.`,`Sind alle ${w[0]} auch ${w[2]}?`,"Ja"],[`Alle ${w[0]} sind ${w[1]}. Einige ${w[1]} sind ${w[2]}.`,`Sind einige ${w[0]} auch ${w[2]}?`,"Nicht sicher"],[`Kein ${w[0]} ist ${w[1]}. Alle ${w[2]} sind ${w[1]}.`,`Kann ein ${w[0]} ein ${w[2]} sein?`,"Nein"]][f],o=["Ja","Nein","Nicht sicher"];return{text:`${T[0]}<br>${T[1]}`,options:o,ans:o.indexOf(T[2])}}),
+g(LO,50,"Rangfolge",L=>{const o=shuffle(NM).slice(0,4),k=R(2,3),st=[0,1,2].map(i=>Math.random()<.4&&L>1?`${o[i+1]} ist langsamer als ${o[i]}.`:`${o[i]} ist schneller als ${o[i+1]}.`);return{text:`${shuffle(st).join(" ")}<br>Wer ist am ${k===2?"zweit":"dritt"}schnellsten?`,...txtOpts(o[k-1],o,4)}}),
+g(LO,25,"Wochentage",L=>{const d=R(0,6),n=R(10+10*L,40+30*L);return{text:`Heute ist ${DAYS[d]}. Welcher Wochentag ist in ${n} Tagen?`,...txtOpts(DAYS[(d+n)%7],DAYS)}}),
+g(WO,25,"Buchstabenreihe",L=>{const st=R(1,2+L),s0=R(0,10),Lt=i=>String.fromCharCode(65+i),c=Lt(s0+5*st);return{text:"Welcher Buchstabe kommt als Nächstes?",seq:seqTxt([0,1,2,3,4].map(i=>Lt(s0+i*st))),...txtOpts(c,[...Array(26).keys()].map(Lt).filter(x=>Math.abs(x.charCodeAt(0)-c.charCodeAt(0))<5))}}),
+g(WO,25,"Wortanalogie",L=>{const a=pick(ANA);return{text:`${a[0]} : ${a[1]} = ${a[2]} : ?`,...txtOpts(a[3],ANA.map(x=>x[3]))}}),
+g(WO,20,"Ausreisser (Wörter)",L=>{const k=Object.keys(WC),a=pick(k),b=pick(k.filter(x=>x!==a)),w=shuffle(WC[a]).slice(0,4),o=pick(WC[b]),all=shuffle([...w,o]);return{text:"Welches Wort passt nicht zu den anderen?",options:all,ans:all.indexOf(o)}}),
+g(WO,35,"Buchstabencode",L=>{const n=2+L,w=[...Array(n)].map(()=>R(0,5+3*L)),s=w.reduce((a,b)=>a+b+1,0);return{text:`Es gilt A = 1, B = 2, C = 3 und so weiter. Was ergibt die Summe der Buchstaben von „${w.map(x=>String.fromCharCode(65+x)).join("")}“?`,...numOpts(s)}}),
+g(FI,30,"Figurenreihe",L=>{const st=pick([45,90,135]),s0=R(0,7)*45,a=(s0+4*st)%360,o=new Set([a]);for(const p of shuffle([0,45,90,135,180,225,270,315]))if(o.size<5)o.add(p);const arr=shuffle([...o]);return{text:"Der Pfeil dreht sich nach einer festen Regel. Wie sieht der nächste aus?",html:`<div class="svgrow">${[0,1,2,3].map(i=>arrow((s0+i*st)%360)).join("")}<b style="font-size:1.6rem">?</b></div>`,options:arr.map(arrow),ans:arr.indexOf(a)}}),
+g(FI,60,"Figurenmatrix",L=>{const base=R(3,5),fl=Math.random()<.5,cell=(r,c)=>fl?[base+r,c+1]:[base+c,r+1],key=p=>p.join("-"),ca=cell(2,2),rows=[0,1,2].map(r=>"<tr>"+[0,1,2].map(c=>"<td>"+(r===2&&c===2?"?":polyD(...cell(r,c)))+"</td>").join("")+"</tr>").join(""),pool=[];for(let n=base;n<=base+3;n++)for(let d=1;d<=4;d++)if(key([n,d])!==key(ca))pool.push([n,d]);const o=shuffle([ca,...shuffle(pool).slice(0,4)]);return{text:"In jeder Zeile und Spalte gilt eine feste Regel (Ecken und Punkte). Welche Figur fehlt unten rechts?",html:`<table class="m">${rows}</table>`,options:o.map(p=>polyD(...p)),ans:o.findIndex(p=>key(p)===key(ca))}}),
+g(FI,25,"Figuren-Ausreisser",L=>{const n=R(3,6+L),m=L===1?n+2:(n>3&&Math.random()<.5?n-1:n+1),sh=[0,1,2,3].map(()=>poly(n,R(0,5)*0.5)),pos=R(0,4);sh.splice(pos,0,poly(m,R(0,5)*0.5));return{text:"Welche Figur passt nicht zu den anderen?",options:sh,ans:pos}}),
+g(FI,25,"Wachsende Figuren",L=>{const n0=R(3,4),o=shuffle([3,4,5,6,7,8,9,10].filter(x=>x!==n0+4)).slice(0,4),arr=shuffle([n0+4,...o]);return{text:"Die Figuren folgen einer Regel. Welche kommt als Nächstes?",html:`<div class="svgrow">${[0,1,2,3].map(i=>poly(n0+i)).join("")}<b style="font-size:1.6rem">?</b></div>`,options:arr.map(n=>poly(n)),ans:arr.indexOf(n0+4)}}),
+g(FI,40,"Spiegelung",L=>{const r=pick([0,90,180,270]),M=a=>`translate(64 0) scale(-1 1) rotate(${a} 32 32)`,Rt=a=>`rotate(${a%360} 32 32)`,opt=shuffle([[M(r),1],[Rt(r+90)],[Rt(r+180)],[Rt(r+270)],[M(r+180)]]);return{text:"Welche Figur zeigt das Original an der senkrechten Achse gespiegelt?",html:`<div class="svgrow">${flag(Rt(r))}</div>`,options:opt.map(o=>flag(o[0])),ans:opt.findIndex(o=>o[1])}})
+];
+const CATS=[Z,RE,LO,FI,WO];
+let Q=[],cur=0,sel=[],T=[],t0=0,tick,lvl=1,order=[];
+const app=document.getElementById("app");
+function mk(i,L){const o=G[i];return{...o.f(L),type:o.t,cat:o.c,par:o.p,L}}
+function start(){
+  const first=CATS.map(c=>pick(G.map((x,i)=>i).filter(i=>G[i].c===c)));
+  const rest=shuffle(G.map((x,i)=>i).filter(i=>!first.includes(i))).slice(0,10);
+  order=shuffle([...first,...rest]);Q=[];cur=0;sel=Array(15).fill(null);T=Array(15).fill(0);lvl=1;t0=Date.now();
+  clearInterval(tick);tick=setInterval(()=>{const e=document.getElementById("tm");if(e)e.textContent=Math.round((Date.now()-t0)/1000)+" s"},500);render();
+}
+function render(){
+  if(cur>=15)return result();
+  if(!Q[cur])Q[cur]=mk(order[cur],lvl);
+  const q=Q[cur];
+  app.innerHTML=`<div class="card"><div class="mu" style="display:flex;justify-content:space-between"><span>Aufgabe ${cur+1} von 15 · Stufe ${q.L}/3</span><span id="tm">${Math.round((Date.now()-t0)/1000)} s</span></div><div class="bar"><i style="width:${cur/15*100}%"></i></div>
+  <div style="margin-top:16px" class="type">${q.type}</div><div class="q">${q.text}</div>
+  ${q.seq?`<div class="seq">${q.seq}</div>`:""}${q.html||""}
+  <div class="opts">${q.options.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join("")}</div></div>`;
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    if(Date.now()-t0<300)return;
+    sel[cur]=+b.dataset.i;T[cur]=(Date.now()-t0)/1000;
+    lvl=sel[cur]===q.ans?Math.min(3,lvl+1):Math.max(1,lvl-1);
+    cur++;t0=Date.now();render();window.scrollTo(0,0);
+  });
+}
+const pts=i=>{const q=Q[i];if(sel[i]!==q.ans)return 0;const s=Math.max(0,Math.min(1,(3*q.par-T[i])/(2*q.par)));return q.L*(.7+.3*s)};
+const erf=x=>{const t=1/(1+.3275911*Math.abs(x)),y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x);return x<0?-y:y};
+function errs(){
+  const w=Q.map((q,i)=>i).filter(i=>sel[i]!==Q[i].ans);
+  if(!w.length)return "<h3>Fehler</h3><p><b>Keine Fehler – perfekt!</b></p>";
+  return `<h3>Fehler (${w.length})</h3>`+w.map(i=>{const q=Q[i];return `<div style="border-top:1px solid var(--bd);padding:12px 0"><div class="type">Aufgabe ${i+1} · ${q.type}</div><div>${q.text}</div>${q.seq?`<div class="seq" style="font-size:1.1rem;margin:6px 0">${q.seq}</div>`:""}${q.html||""}<div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:6px"><div><div class="mu">Deine Antwort</div><div style="color:var(--no)">${q.options[sel[i]]}</div></div><div><div class="mu">Richtig</div><div style="color:var(--ok)">${q.options[q.ans]}</div></div></div></div>`}).join("");
+}
+function result(){
+  clearInterval(tick);
+  const ok=Q.map((q,i)=>sel[i]===q.ans),n=ok.filter(Boolean).length,P=Q.reduce((a,q,i)=>a+pts(i),0),tt=T.reduce((a,b)=>a+b,0);
+  const iq=Math.max(55,Math.min(145,Math.round(100+15*(P-15)/7))),pc=Math.round(50*(1+erf((iq-100)/15/Math.SQRT2)));
+  const lbl=iq<85?"unterdurchschnittlich":iq<95?"leicht unterdurchschnittlich":iq<=105?"durchschnittlich":iq<115?"leicht überdurchschnittlich":iq<130?"überdurchschnittlich":"weit überdurchschnittlich";
+  const fmt=s=>Math.floor(s/60)+" min "+Math.round(s%60)+" s";
+  const cats=CATS.map(c=>{const ix=Q.map((q,i)=>i).filter(i=>Q[i].cat===c);return ix.length?`<tr><td>${c}</td><td>${ix.filter(i=>ok[i]).length} / ${ix.length}</td><td>Ø ${Math.round(ix.reduce((a,i)=>a+T[i],0)/ix.length)} s</td></tr>`:""}).join("");
+  const mx=Math.max(...T,30);
+  const bars=Q.map((q,i)=>`<div style="display:flex;align-items:center;gap:8px;font-size:.8rem;margin:3px 0"><span style="width:20px">${i+1}</span><div style="flex:1;background:var(--acs);border-radius:4px"><div style="width:${Math.max(2,T[i]/mx*100)}%;background:var(${ok[i]?"--ok":"--no"});height:12px;border-radius:4px"></div></div><span style="width:44px;text-align:right">${Math.round(T[i])} s</span></div>`).join("");
+  let H=[];try{H=JSON.parse(localStorage.getItem("iqh")||"[]")}catch(e){}
+  const prev=H.slice(-5).reverse();
+  try{localStorage.setItem("iqh",JSON.stringify(H.concat({d:new Date().toLocaleDateString("de-CH"),iq,n,t:Math.round(tt)}).slice(-20)))}catch(e){}
+  app.innerHTML=`<div class="card"><div style="text-align:center"><div class="mu">Dein geschätzter IQ</div><div class="iq">${iq}</div>
+  <p><b>${n} von 15</b> richtig · ${lbl}<br><span class="mu">Rechnerisch besser als ca. ${pc} % der Bevölkerung</span></p>
+  <p class="mu">Gesamtzeit ${fmt(tt)} · Ø ${Math.round(tt/15)} s pro Aufgabe · Punkte ${P.toFixed(1)}</p></div>
+  <h3>Stärken und Schwächen</h3><table class="t"><tr><th>Bereich</th><th>Richtig</th><th>Zeit</th></tr>${cats}</table>
+  <h3>Zeit pro Aufgabe</h3>${bars}
+  ${errs()}
+  ${prev.length?`<h3>Frühere Ergebnisse</h3><table class="t">${prev.map(h=>`<tr><td>${h.d}</td><td>IQ ${h.iq}</td><td>${h.n}/15</td><td>${fmt(h.t)}</td></tr>`).join("")}</table>`:""}
+  <p class="mu" style="margin-top:16px">Wertung: Eine richtige Antwort gibt Punkte gemäss Stufe (1–3), schnell (innerhalb der Richtzeit der Aufgabe) voll, langsam (ab dem Dreifachen) 70 %. Nach richtigen Antworten wird es schwerer, nach Fehlern leichter. Der IQ wird mit angenommenen, nicht empirisch erhobenen Normwerten geschätzt (Mittel 15 Punkte, Streuung 7) und ist daher nur eine grobe Näherung, kein normierter Test.</p>
+  <div style="text-align:center"><button class="btn" id="re">Neuer Test mit neuen Aufgaben</button></div></div>`;
+  document.getElementById("re").onclick=()=>{start();window.scrollTo(0,0)};
+}
+start();
+</script>
+</body>
+</html>
